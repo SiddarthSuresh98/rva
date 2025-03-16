@@ -1,7 +1,4 @@
-(defpackage :rva
-  (:use :cl))
-
-(in-package :rva)
+(in-package #:rva)
 
 (defparameter *version* "v0.1")
 
