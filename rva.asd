@@ -12,7 +12,6 @@
   :components ((:module "src"
 		:serial t
 		:components ((:file "package")
-			     (:file "lex")
 			     (:file "main"))))
   :long-description
   #.(uiop:read-file-string
