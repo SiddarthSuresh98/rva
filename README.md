@@ -5,6 +5,7 @@
 - SBCL
 - ASDF
 - fiveam
+- clingon
 
 ## To compile
 

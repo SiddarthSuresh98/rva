@@ -7,8 +7,3 @@
 
 (defun test-rva ()
   (run! 'all-tests))
-
-(test dummy-tests
-  "Just a placeholder."
-  (is (listp (list 1 2)))
-  (is (= 5 (+ 2 3))))

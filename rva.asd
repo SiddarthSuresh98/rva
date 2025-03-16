@@ -8,11 +8,13 @@
   :homepage "https://github.com/bdunahu/rva"
   :description "Assembler for the RISC-V[ECTOR] mini-ISA."
   :source-control (:git "git@github.com:bdunahu/rva.git")
-  :depends-on ("uiop")
+  :depends-on (:uiop
+               :clingon)
   :components ((:module "src"
-		:serial t
-		:components ((:file "package")
-			     (:file "main"))))
+                :serial t
+                :components ((:file "package")
+                             (:file "util")
+                             (:file "main"))))
   :long-description
   #.(uiop:read-file-string
      (uiop:subpathname *load-pathname* "README.md"))
@@ -26,11 +28,12 @@
   ;; :license ""
   :description "rva's test suite"
   :depends-on (:rva
-	       :fiveam)
+               :fiveam)
   :components ((:module "t"
-		:serial t
-		:components ((:file "package")
-			     (:file "main"))))
+                :serial t
+                :components ((:file "package")
+                             (:file "main")
+                             (:file "util"))))
   :perform (test-op (o s) (uiop:symbol-call :rva-tests :test-rva)))
 
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))
