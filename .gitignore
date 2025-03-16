@@ -1,0 +1,6 @@
+# IDE files
+.dir-locals.el
+manifest.scm
+
+# generated
+bin/
