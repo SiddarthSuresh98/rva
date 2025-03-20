@@ -43,9 +43,11 @@ _/_/                                  _/_/  "
       ;; complain about num arguments
       ((/= (length args) 1) (error "Wrong number of arguments."))
       ((not (util:asm-extension? file))
-       (error "The file is not an asm source code file, or it could not be opened."))
+       (error "The file is not an asm source code file."))
       (t (let ((tokens (lex:file->tokens file)))
-           (format t "~a" tokens)
+           (if tokens
+               (format t "~a" tokens)
+               (error "The file does not exist, or it could not be opened."))
            (format t "Nitimur in Vetitum~%"))))))
 
 
