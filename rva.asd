@@ -14,6 +14,7 @@
                 :serial t
                 :components ((:file "package")
                              (:file "util")
+                             (:file "lex")
                              (:file "main"))))
   :long-description
   #.(uiop:read-file-string
@@ -33,7 +34,8 @@
                 :serial t
                 :components ((:file "package")
                              (:file "main")
-                             (:file "util"))))
+                             (:file "util")
+                             (:file "lex"))))
   :perform (test-op (o s) (uiop:symbol-call :rva-tests :test-rva)))
 
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))

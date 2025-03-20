@@ -35,14 +35,19 @@ _/_/                                  _/_/  "
 (defun driver (cmd)
   "Reads in a file and directs lexing, parsing, and binary emission."
   (print-splash)
-  (let ((args (clingon:command-arguments cmd))
-        (parse? (not (clingon:getopt cmd :lex)))
-        (emit? (not (clingon:getopt cmd :parse))))
+  (let* ((args (clingon:command-arguments cmd))
+         (file (car args))
+         (parse? (not (clingon:getopt cmd :lex)))
+         (emit? (not (clingon:getopt cmd :parse))))
     (cond
       ;; complain about num arguments
       ((/= (length args) 1) (error "Wrong number of arguments."))
-      ((not (util:asm-extension? (car args))) (error "The file is not an asm source code file."))))
-  (error-cli "Nitimur in Vetitum"))
+      ((not (util:asm-extension? file))
+       (error "The file is not an asm source code file, or it could not be opened."))
+      (t (let ((tokens (lex:file->tokens file)))
+           (format t "~a" tokens)
+           (format t "Nitimur in Vetitum~%"))))))
+
 
 (defun cli/command ()
   "Returns a clingon command."
