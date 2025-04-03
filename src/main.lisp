@@ -41,13 +41,14 @@ _/_/                                  _/_/  "
          (emit? (not (clingon:getopt cmd :parse))))
     (cond
       ;; complain about num arguments
-      ((/= (length args) 1) (error "Wrong number of arguments."))
+      ((/= (length args) 1) (error "Wrong number of arguments.~%"))
       ((not (util:asm-extension? file))
-       (error "The file is not an asm source code file."))
+       (error "The file is not an asm source code file.~%"))
       (t (let ((tokens (lex:file->tokens file)))
            (if tokens
-               (format t "~a" tokens)
-               (error "The file does not exist, or it could not be opened."))
+               (progn (pprint tokens)
+                      (terpri))
+               (error "The file does not exist, or it could not be opened.~%"))
            (format t "Nitimur in Vetitum~%"))))))
 
 

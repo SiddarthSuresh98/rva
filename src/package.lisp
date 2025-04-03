@@ -10,4 +10,5 @@
   (:use #:cl)
   (:export #:file->tokens
            ;; exported for testing only
-           #:read-token))
+           #:read-token
+           #:invalid-immediate-or-keyword))

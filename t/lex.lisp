@@ -14,6 +14,11 @@
       (read-this ""
                  (is (not (lex:read-token)))))
 
+(test read-token-reads-nl
+      (read-this "
+"
+                 (is (eq (lex:read-token) 'lex::nl))))
+
 (test read-token-reads-left-paren
       (read-this "("
                  (is (eq (lex:read-token) 'lex::left-paren))))
@@ -21,6 +26,10 @@
 (test read-token-reads-right-paren
       (read-this ")"
                  (is (eq (lex:read-token) 'lex::right-paren))))
+
+(test read-token-reads-left-paren
+      (read-this "$"
+                 (is (eq (lex:read-token) 'lex::dollar))))
 
 (test read-token-ignores-space
       (read-this " ("
@@ -30,16 +39,35 @@
       (read-this "      ("
                  (is (eq (lex:read-token) 'lex::left-paren))))
 
-(test read-token-ignores-newline
-      (read-this "
-("
-                 (is (eq (lex:read-token) 'lex::left-paren))))
-
 (test read-token-ignores-comment
       (read-this "; this is a comment
 ("
-                 (is (eq (lex:read-token) 'lex::left-paren))))
+                 (is (eq (lex:read-token) 'lex::nl))))
 
-(test read-token-ignores-comment-eof
-      (read-this ";"
-                 (is (not (lex:read-token)))))
+(test read-token-immediate-zero
+      (read-this "0"
+                 (is (= (lex:read-token) 0))))
+
+(test read-token-immediate-all-digits
+      (read-this "123456789"
+                 (is (= (lex:read-token) 123456789))))
+
+(test read-token-immediate-invalid-immediate
+      (handler-case
+          (progn (read-this "0v0" (lex:read-token))
+                 (fail))
+        (lex:invalid-immediate-or-keyword ())))
+
+(test read-token-keyword-single
+      (read-this "a"
+                 (is (string= (lex:read-token) "a"))))
+
+(test read-token-keyword-add
+      (read-this "addi"
+                 (is (string= (lex:read-token) "addi"))))
+
+(test read-token-immediate-invalid-keyword
+      (handler-case
+          (progn (read-this "sub0" (lex:read-token))
+                 (fail))
+        (lex:invalid-immediate-or-keyword ())))
