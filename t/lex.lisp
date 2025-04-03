@@ -52,11 +52,30 @@
       (read-this "123456789"
                  (is (= (lex:read-token) 123456789))))
 
+(test read-token-immediate-binary
+      (read-this "0b00101010"
+                 (is (= (lex:read-token) 42))))
+
+(test read-token-immediate-octal
+      (read-this "0o052"
+                 (is (= (lex:read-token) 42))))
+
+(test read-token-immediate-hexadecimal
+      (read-this "0x200"
+                 (is (= (lex:read-token) 512))))
+
 (test read-token-immediate-invalid-immediate
       (handler-case
           (progn (read-this "0v0" (lex:read-token))
                  (fail))
         (lex:invalid-immediate-or-keyword ())))
+
+;; do we want a custom error for this too?
+(test read-token-immediate-radix
+      (handler-case
+          (progn (read-this "0x" (lex:read-token))
+                 (fail))
+        (sb-int:simple-parse-error ())))
 
 (test read-token-keyword-single
       (read-this "a"

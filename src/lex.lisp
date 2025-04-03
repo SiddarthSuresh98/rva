@@ -9,7 +9,7 @@
              :reader instance))
   (:report (lambda (condition stream)
              (format stream
-                     "Lex failed--encountered ~a while reading ~a."
+                     "LEX failed--encountered ~a while reading ~a."
                      (chr condition) (instance condition))))
   (:documentation "Dedicated error for immediates/keywords which contain
 invalid characters."))
@@ -63,6 +63,9 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
       (t (error (format nil "~a is not a valid lexical symbol.~%" chr))))))
 
 (defun read-immediate (chr)
+  "Reads a sequence of digits, in base 2, 8, 10, or 16.. Throws
+`invalid-immediate-or-keyword' error if an alphabetic character is encountered."
+  ;; may be combined with read-keyword-helper
   (defun read-immediate-helper (chrs-so-far)
     (let ((chr (peek-char nil *standard-input* nil)))
       (cond ((and (not (null chr)) (digit-char-p chr))
@@ -70,9 +73,24 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
             ((and (not (null chr)) (alpha-char-p chr))
              (error 'invalid-immediate-or-keyword :chr chr :instance "immediate"))
             (t (reverse chrs-so-far)))))
-  (parse-integer (coerce (read-immediate-helper (list chr)) 'string)))
+
+  (let* ((next (peek-char nil *standard-input* nil))
+         (radix (cond ((null next) 10)
+                      ((char= next #\b) 2)
+                      ((char= next #\o) 8)
+                      ((char= next #\x) 16)
+                      ((digit-char-p next) 10)
+                      (t nil)))
+         (arg (list chr)))
+    (when (and (char= chr #\0) radix (not (= radix 10)))
+      (read-char *standard-input* nil)
+      (setq arg '()))
+    (parse-integer (coerce (read-immediate-helper arg) 'string) :radix radix)))
 
 (defun read-keyword (chr)
+  "Reads a sequence of alphabetic characters. Throws `invalid-immediate-or-keyword'
+error if a digit is encountered."
+  ;; may be combined with read-immediate-helper
   (defun read-keyword-helper (chrs-so-far)
     (let ((chr (peek-char nil *standard-input* nil)))
       (cond ((and (not (null chr)) (alpha-char-p chr))
