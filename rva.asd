@@ -4,12 +4,13 @@
 (asdf:defsystem #:rva
   ;; :author ""
   ;; :license ""
-  :version "0.1"
+  :version "0.3"
   :homepage "https://github.com/bdunahu/rva"
   :description "Assembler for the RISC-V[ECTOR] mini-ISA."
   :source-control (:git "git@github.com:bdunahu/rva.git")
   :depends-on (:uiop
-               :clingon)
+               :clingon
+               :trivia)
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")

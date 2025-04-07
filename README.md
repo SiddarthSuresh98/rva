@@ -1,12 +1,30 @@
-# RISC V[ECTOR] Assembler
+# rva
+
+	      _/_/                                  _/_/
+	     _/                                      _/
+	    _/    _/  _/_/  _/      _/    _/_/_/    _/
+	   _/    _/_/      _/      _/  _/    _/    _/
+	  _/    _/          _/  _/    _/    _/    _/
+	 _/    _/            _/        _/_/_/    _/
+	_/_/                                  _/_/
+
+This is an assembler for the custom ISA nicknamed "RISC V[ECTOR]". It takes in an assembly program syntactically similar to MIPS (see input) and outputs a list of binary numbers corresponding to the instructions. This the output is compatible with the [RISC V[ECTOR]](https://github.com/bdunahu/RISC-V-ECTOR-) simulator.
 
 ## Dependencies
 
-- SBCL
-- ASDF
-- fiveam
-- clingon
+A common-lisp implementation (SBCL) and the following libraries are required to compile:
 
-## To compile
+- SBCL (tested with v2.5.2)
+- ASDF (tested with v3.3.7)
+- fiveam (tested with v3.3.7)
+- clingon (tested with v0.5.0-1.f2a730f)
+- trivia (tested with v0.1-0.8b406c3)
 
-make
+## To run
+
+Run `make` to produce a binary file in `/bin/`. To run the unit tests, run `make test`. See the make file for further options.
+
+# About
+
+Created at the University of Massachusetts, Amherst
+CS535 -- Computer Architecture and ISA Design
