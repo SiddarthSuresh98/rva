@@ -14,3 +14,15 @@
 
 (test asm-extension?-returns-true-obvious-case
       (is (util:asm-extension? "quux.asm")))
+
+(test format-as-binary-unsigned-no-pad
+      (is (string= (util:format-as-binary 0 0)
+		   "0")))
+
+(test format-as-binary-unsigned-no-pad-fourty-two
+      (is (string= (util:format-as-binary 42 0)
+		   "101010")))
+
+(test format-as-binary-unsigned-pad-fourty-two
+      (is (string= (util:format-as-binary 42 10)
+		   "0000101010")))

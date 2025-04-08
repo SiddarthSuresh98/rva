@@ -16,6 +16,7 @@
                 :components ((:file "package")
                              (:file "util")
                              (:file "lex")
+                             (:file "parse")
                              (:file "main"))))
   :long-description
   #.(uiop:read-file-string
@@ -36,7 +37,8 @@
                 :components ((:file "package")
                              (:file "main")
                              (:file "util")
-                             (:file "lex"))))
+                             (:file "lex")
+                             (:file "parse"))))
   :perform (test-op (o s) (uiop:symbol-call :rva-tests :test-rva)))
 
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))

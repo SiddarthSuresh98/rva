@@ -1,14 +1,6 @@
 # rva
 
-	      _/_/                                  _/_/
-	     _/                                      _/
-	    _/    _/  _/_/  _/      _/    _/_/_/    _/
-	   _/    _/_/      _/      _/  _/    _/    _/
-	  _/    _/          _/  _/    _/    _/    _/
-	 _/    _/            _/        _/_/_/    _/
-	_/_/                                  _/_/
-
-This is an assembler for the custom ISA nicknamed "RISC V[ECTOR]". It takes in an assembly program syntactically similar to MIPS (see input) and outputs a list of binary numbers corresponding to the instructions. This the output is compatible with the [RISC V[ECTOR]](https://github.com/bdunahu/RISC-V-ECTOR-) simulator.
+This is an assembler for a custom ISA nicknamed "RISC V[ECTOR]". It takes in an assembly program syntactically similar to MIPS (see input) and outputs a list of binary numbers corresponding to the instructions. The output is compatible with the [RISC V[ECTOR]](https://github.com/bdunahu/RISC-V-ECTOR-) simulator.
 
 ## Dependencies
 
@@ -27,4 +19,5 @@ Run `make` to produce a binary file in `/bin/`. To run the unit tests, run `make
 # About
 
 Created at the University of Massachusetts, Amherst
+
 CS535 -- Computer Architecture and ISA Design
