@@ -76,7 +76,7 @@
       (handler-case
           (progn (read-this "0v0" (lex:read-token))
                  (fail))
-        (lex:invalid-immediate-or-keyword ())))
+        (lex:lexer-error ())))
 
 ;; do we want a custom error for this too?
 (test read-token-immediate-radix
@@ -97,4 +97,4 @@
       (handler-case
           (progn (read-this "sub0" (lex:read-token))
                  (fail))
-        (lex:invalid-immediate-or-keyword ())))
+        (lex:lexer-error ())))

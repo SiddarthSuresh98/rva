@@ -11,10 +11,16 @@
 
 (test extract-label-not-a-label-one
       (let ((lst '("NICE" "TRY")))
-	(is (equal lst
-		   (parse:extract-label lst)))))
+        (is (equal lst
+                   (parse:extract-label lst)))))
 
 (test extract-label-not-a-label-two
       (let ((lst '("LOOP" lex::colon lex::colon)))
-	(is (equal lst
-		   (parse:extract-label lst)))))
+        (is (equal lst
+                   (parse:extract-label lst)))))
+
+(test extract-line-invalid-type
+      (handler-case
+          (progn (parse:tokens->ast '(("foo" LEX::DOLLAR)))
+                 (fail))
+        (lex:parser-error ())))

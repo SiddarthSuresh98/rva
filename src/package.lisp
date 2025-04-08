@@ -1,4 +1,4 @@
-(defpackage #:rva
+helper(defpackage #:rva
   (:use #:cl)
   (:export #:main))
 
@@ -6,18 +6,21 @@
   (:use #:cl)
   (:export #:asm-extension?
            #:format-as-binary
-           #:label-loc
-           #:mnemonic-loc))
+           #:type-r
+           #:type-i
+           #:type-j
+           #:label-loc))
 
 (defpackage #:lex
   (:use #:cl)
-  (:export #:file->tokens
+  (:export #:lexer-error
+           #:file->tokens
            ;; exported for testing only
-           #:read-token
-           #:invalid-immediate-or-keyword))
+           #:read-token))
 
 (defpackage #:parse
   (:use #:cl)
-  (:export #:tokens->ast
+  (:export #:parser-error
+           #:tokens->ast
            ;; exported for testing only
            #:extract-label))

@@ -1,18 +1,12 @@
 (in-package #:lex)
 
-(define-condition invalid-immediate-or-keyword (error)
-  ((chr :initarg :chr
-        :initform nil
-        :reader chr)
-   (instance :initarg :instance
-             :initform nil
-             :reader instance))
+(define-condition lexer-error (error)
+  ((message :initarg :message
+            :initform nil
+            :reader message))
   (:report (lambda (condition stream)
-             (format stream
-                     "LEX failed--encountered ~a while reading ~a."
-                     (chr condition) (instance condition))))
-  (:documentation "Dedicated error for immediates/keywords which contain
-invalid characters."))
+             (format stream "~A" (message condition))))
+  (:documentation "Dedicated error for an invalid lex."))
 
 (defun file->tokens (file)
   "Opens FILE and parses returns a list of tokens, or
@@ -63,7 +57,9 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
       ((alpha-char-p chr)
        (read-keyword chr))
 
-      (t (error (format nil "~a is not a valid lexical symbol.~%" chr))))))
+      (t (error 'lexer-error
+                :message
+                (format nil "LEX failled--~a is not a valid lexical symbol.~%" chr))))))
 
 (defun read-immediate (chr)
   "Reads a sequence of digits, in base 2, 8, 10, or 16.. Throws
@@ -74,7 +70,9 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
       (cond ((and (not (null chr)) (digit-char-p chr))
              (read-immediate-helper (cons (read-char *standard-input* nil) chrs-so-far)))
             ((and (not (null chr)) (alpha-char-p chr))
-             (error 'invalid-immediate-or-keyword :chr chr :instance "immediate"))
+             (error 'lexer-error
+                    :message
+                    (format nil "LEX failed--encountered ~a while reading immediate.~%" chr)))
             (t (reverse chrs-so-far)))))
 
   (let* ((next (peek-char nil *standard-input* nil))
@@ -99,7 +97,9 @@ error if a digit is encountered."
       (cond ((and (not (null chr)) (alpha-char-p chr))
              (read-keyword-helper (cons (read-char *standard-input* nil) chrs-so-far)))
             ((and (not (null chr)) (digit-char-p chr))
-             (error 'invalid-immediate-or-keyword :chr chr :instance "keyword"))
+             (error 'lexer-error
+                    :message
+                    (format nil "LEX failed--encountered ~a while reading keyword.~%" chr)))
             (t (reverse chrs-so-far)))))
   (coerce (read-keyword-helper (list chr)) 'string))
 
