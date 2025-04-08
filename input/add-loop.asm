@@ -12,8 +12,8 @@
         jrl CHECK
 LOOP:
         add $9 $fp $5
-        load $7 0($9)
-        load $8 1($9)
+        load $7 -0($9)
+        load $8 +1($9)
         add $7 $7 $8
         store $7 0($9)
         addi $5 $5 0x1

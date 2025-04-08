@@ -31,6 +31,14 @@
       (read-this "$"
                  (is (eq (lex:read-token) 'lex::dollar))))
 
+(test read-token-reads-plus
+      (read-this "+"
+                 (is (eq (lex:read-token) 'lex::plus))))
+
+(test read-token-reads-minus
+      (read-this "-"
+                 (is (eq (lex:read-token) 'lex::minus))))
+
 (test read-token-ignores-space
       (read-this " ("
                  (is (eq (lex:read-token) 'lex::left-paren))))

@@ -54,6 +54,9 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
       ((char= chr #\:) 'colon)
       ((char= chr #\$) 'dollar)
 
+      ((char= chr #\+) 'plus)
+      ((char= chr #\-) 'minus)
+
       ((digit-char-p chr)
        (read-immediate chr))
 
