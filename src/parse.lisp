@@ -48,10 +48,11 @@ label, and pushed onto the stack with the line index.
 Note that this function is intended to be called using mapcar,
 so that labels can be added to a map and otherwise removed from
 processing."
-    (trivia:match line
-      ((list (type string) 'lex::colon)
-       (progn (push (cons (read-from-string (car line)) i) label-loc) nil))
-      (_ (progn (incf i) line)))))
+    (if (and (equal 2 (length line))
+	     (stringp (car line))
+	     (equal 'lex::colon (cadr line)))
+	(progn (push (cons (read-from-string (car line)) i) label-loc) nil)
+	(progn (incf i) line))))
 
 (defun extract-instruction (line i)
   "Given instruction LINE, determines the expected type format and passes

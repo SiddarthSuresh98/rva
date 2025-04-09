@@ -10,7 +10,6 @@ A common-lisp implementation (SBCL) and the following libraries are required to 
 - ASDF (tested with v3.3.7)
 - fiveam (tested with v3.3.7)
 - clingon (tested with v0.5.0-1.f2a730f)
-- trivia (tested with v0.1-0.8b406c3)
 
 ## To run
 
