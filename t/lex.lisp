@@ -20,6 +20,10 @@
                  (is (eq (lex:read-token) 'lex::nl))))
 
 (test read-token-reads-left-paren
+      (read-this "."
+                 (is (eq (lex:read-token) 'lex::period))))
+
+(test read-token-reads-left-paren
       (read-this "("
                  (is (eq (lex:read-token) 'lex::left-paren))))
 

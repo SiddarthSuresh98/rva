@@ -9,7 +9,8 @@
   :description "Assembler for the RISC-V[ECTOR] mini-ISA."
   :source-control (:git "git@github.com:bdunahu/rva.git")
   :depends-on (:uiop
-               :clingon)
+               :clingon
+	       :esrap)
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")

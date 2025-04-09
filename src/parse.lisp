@@ -1,101 +1,107 @@
 (in-package #:parse)
 
-(defparameter reg-loc
-  '(("zr" . 0) ("lk" . 1)
-    ("sp" . 2) ("cc" . 3)
-    ("vl" . 4) ("fp" . 5))
-  "A symbol table mapping register aliases to identifiers. If you want to add
-a new alias, do it here.")
+(esrap:defrule space
+    (+ (or #\Space #\Tab))
+  (:constant nil))
 
-(defparameter label-loc '()
-  "A symbol table mapping label names to line indices.")
+;;; defines rules to parse an integer in various bases
 
-(define-condition parser-error (error)
-  ((message :initarg :message
-            :initform nil
-            :reader message))
-  (:report (lambda (condition stream)
-             (format stream "~A" (message condition))))
-  (:documentation "Dedicated error for an invalid parse."))
+(esrap:defrule binary (and #\0 #\b (+ (or "0" "1")))
+  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 2)))
 
-(defun to-register (tokens)
-  "Attempts to parse a register from the start of TOKENS. If it is badly formed,
-throws a PARSER-ERROR."
-  (or (and (equal (car tokens) 'LEX::DOLLAR)
-           (cadr tokens)
-           (let ((r (cadr tokens)))
-             (cond ((stringp r) (cdr (assoc r reg-loc :test #'string=)))
-                   ((numberp r) (and (<= 0 r 23) r)))))
-      (error 'parser-error
-             :message
-             (format nil "PARSE failed--Expected register, got ~a.~%"
-                     (subseq tokens 0 (min 2 (length tokens)))))))
+(esrap:defrule octal (and #\0 #\o (+ (or (esrap:character-ranges (#\0 #\7)))))
+  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 8)))
 
-(defun tokens->ast (program)
-  "Given PROGRAM, which is a list of lists of symbols,
-filters out the labels and parses."
-  ;; TODO add directives
-  (let ((program (remove nil (mapcar #'extract-label program)))
-        (i 0))
-    (mapcar (lambda (l) (extract-instruction l i)) program)))
+(esrap:defrule decimal (+ (or (esrap:character-ranges (#\0 #\9))))
+  (:lambda (list) (parse-integer (esrap:text list) :radix 10)))
 
-(let ((i 0))
-  (defun extract-label (line)
-    "Given a series of tokens LINE, determines if LINE is
-in the form STRING {colon}. If it is, then it is treated as a
-label, and pushed onto the stack with the line index.
+(esrap:defrule hex (and #\0 #\x (+ (or (esrap:character-ranges (#\0 #\9))
+				       "a" "b" "c" "d" "e" "f"
+				       "A" "B" "C" "D" "E" "F")))
+  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 16)))
 
-Note that this function is intended to be called using mapcar,
-so that labels can be added to a map and otherwise removed from
-processing."
-    (if (and (equal 2 (length line))
-	     (stringp (car line))
-	     (equal 'lex::colon (cadr line)))
-	(progn (push (cons (read-from-string (car line)) i) label-loc) nil)
-	(progn (incf i) line))))
+(esrap:defrule int (or binary octal hex decimal))
 
-(defun extract-instruction (line i)
-  "Given instruction LINE, determines the expected type format and passes
-LINE and the index I to the the respective function."
-  (let* ((mnemonic (intern (string-upcase (car line)) :util))
-         ;; TODO add pseudo-ops (i.e., nop, leave, ret...)
-         ;; should probably be their own extract function
-         (type-fn (cond
-                    ((member mnemonic util:type-r) #'extract-r-type)
-                    ((member mnemonic util:type-i) #'extract-i-type)
-                    ((member mnemonic util:type-j) #'extract-j-type))))
-    (if type-fn
-        (funcall type-fn line i)
-        (error 'parser-error
-               :message
-               (format nil "PARSE failed--~a is not a known keyword.~%" mnemonic)))))
+;;; defines rules to parse an operand
 
-(defun extract-r-type (line i)
-  (let ((mnemonic (intern (string-upcase (car line)) :util)))
-    (defun die ()
-      (error 'parser-error
-             :message
-             (format nil "PARSE failed---Incorrect number of operands for ~a" mnemonic)))
-    (defun eat-registers (registers-so-far lst)
-      (if (not (null lst))
-          (eat-registers (cons (to-register lst) registers-so-far)
-                         (cddr lst))
-          (reverse registers-so-far)))
-    (let* ((registers (eat-registers '() (cdr line)))
-           ;; handle special cases
-           (registers (cond ((member mnemonic '(util::CMP util::CEV))
-                             (if (= 2 (length registers))
-                                 (cons 0 registers)
-                                 (die)))
-                            ((member mnemonic '(util::NOT))
-                             (if (= 2 (length registers))
-                                 (append registers (list 0))
-                                 (die)))
-                            (t (if (= 3 (length registers)) registers (die))))))
-      (list :op mnemonic :d (car registers) :s1 (cadr registers) :s2 (caddr registers)))))
+(esrap:defrule register (and #\$ (or int reg-id))
+  (:lambda (list) (list 'rr (cadr list))))
 
-(defun extract-i-type (line i)
-  line)
+(esrap:defrule dereference (and (esrap:? (or #\+ #\-)) int #\( register #\))
+  (:destructure (s i1 w1 r w2)
+    (declare (ignore w1 w2))
+    (list r (if (and s (string= s "-")) (- i1) i1))))
 
-(defun extract-j-type (line i)
-  line)
+;;; defines rules to parse labels
+
+(esrap:defrule label (+ (alphanumericp character))
+  (:lambda (list) (list 'l (esrap:text list))))
+
+(esrap:defrule label-decl (and label #\:)
+  (:destructure (l w)
+    (declare (ignore w))
+    l))
+
+;;; defines rules to parse instruction types
+
+(esrap:defrule r-type-1-m (or "ADDV" "SUBV" "MULV" "DIVV" "ADD" "SUB" "MUL"
+			      "QUOT" "REM" "SFTR" "SFTL" "AND" "OR" "NOT" "XOR" ))
+(esrap:defrule r-type-2-m "NOT")
+(esrap:defrule r-type-3-m (or "CMP" "CEV"))
+(esrap:defrule i-type-1-m (or "LOADV" "LOAD"))
+(esrap:defrule i-type-2-m (or "STOREV" "STORE"))
+(esrap:defrule i-type-3-m (or "ADDI" "SUBI" "SFTRI" "SFTLI" "ANDI" "ORI" "XORI"))
+(esrap:defrule j-type-1-m (or "JMP" "JAL"))
+(esrap:defrule j-type-2-m (or "JRL" "BEQ" "BGT" "BUF" "BOF"))
+(esrap:defrule j-type-3-m (or "PUSH" "POP"))
+
+(defmacro defrule-instr (name type-id order &rest destructure-pattern)
+  (let* ((pattern-size (length destructure-pattern))
+	 (spaces (mapcar (lambda (x) (read-from-string (format nil "w~A" x))) (util:iota pattern-size)))
+	 (vars (mapcar (lambda (x) (read-from-string (format nil "s~A" x))) (util:iota pattern-size))))
+    `(esrap:defrule ,name
+	 (and ,(read-from-string (format nil "~A-m" name)) ,@(util:riffle (make-list pattern-size :initial-element 'space) destructure-pattern))
+       (:destructure (m ,@(util:riffle spaces vars))
+	 (declare (ignore ,@spaces))
+	 (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(rr 0))) order))))))
+
+(defrule-instr r-type-1 'r (1 2 0) register register register)
+(defrule-instr r-type-2 'r (1 2 0) register register)
+(defrule-instr r-type-3 'r (0 1 2) register register)
+;;(defrule-instr j-type-1 'j (0 1) dereference)
+(defrule-instr j-type-2 'j (1 0) label)
+(defrule-instr j-type-3 'j (0 1) register)
+
+;; (esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
+;;   (:destructure (m w1 s w2 di)
+;;     (declare (ignore w1 w2))
+;;     `(i ,m ,s ,@di)))
+;; (esrap:defrule i-type-2 (and i-type-2-m space register space dereference)
+;;   (:destructure (m w1 s w2 di)
+;;     (declare (ignore w1 w2))
+;;     `(i ,m ,@(util:insert-in-middle di s))))
+;; (esrap:defrule i-type-3 (and i-type-3-m space register space register space int)
+;;   (:destructure (m w1 s1 w2 s2 w3 i)
+;;     (declare (ignore w1 w2 w3))
+;;     (list i m s1 s2 i)))
+;; (esrap:defrule j-type-1 (and j-type-1-m space dereference)
+;;   (:destructure (m w di)
+;;     (declare (ignore w))
+;;     `(j ,m ,@di)))
+;; (esrap:defrule j-type-2 (and j-type-2-m space label)
+;;   (:destructure (m w label)
+;;     (declare (ignore w))
+;;     (list j m "00000" label)))
+;; (esrap:defrule j-type-3 (and j-type-3-m space register)
+;;   (:destructure (m w r)
+;;     (declare (ignore w))
+;;     (list j m r "00000")))
+
+(esrap:defrule instr (or r-type-1 r-type-2 r-type-3 j-type-2 j-type-3))
+
+
+;; (esrap:parse 'register "$3")
+
+;; (esrap:parse 'j-type-1 "JMP 3($3)")
+;; (esrap:parse 'j-type-2 "JRL FOO")
+;; (esrap:parse 'j-type-3 "PUSH $1")

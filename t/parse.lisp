@@ -1,76 +1,58 @@
 (in-package #:rva-tests)
 
-(defmacro expect-parse-error (body)
-  `(handler-case
-       (progn ,body
-              (fail))
-     (parse::parser-error ())))
-
 (def-suite parse-tests
   :description "Test functions exported from the parser."
   :in all-tests)
 
+;;; these tests are not exhaustive, and are meant to test basic functionality
+;;; under correct circumstances.
+
 (in-suite parse-tests)
 
-(test extract-label-is-a-label
-      (is (not (parse:extract-label '("LOOP" lex::colon)))))
+(test esrap-register-decimal-ten
+      (is (equal (list 'parse::rr 10)
+                 (esrap:parse 'parse::register "$10"))))
 
-(test extract-label-not-a-label-one
-      (let ((lst '("NICE" "TRY")))
-        (is (equal lst
-                   (parse:extract-label lst)))))
+(test esrap-register-binary-ten
+      (is (equal (list 'parse::rr 10)
+                 (esrap:parse 'parse::register "$0b1010"))))
 
-(test extract-label-not-a-label-two
-      (let ((lst '("LOOP" lex::colon lex::colon)))
-        (is (equal lst
-                   (parse:extract-label lst)))))
+(test esrap-register-octal-ten
+      (is (equal (list 'parse::rr 10)
+                 (esrap:parse 'parse::register "$0o12"))))
 
-(test extract-line-invalid-type
-      (expect-parse-error (parse:tokens->ast '(("foo" lex::dollar)))))
+(test esrap-register-hex-ten
+      (is (equal (list 'parse::rr 10)
+                 (esrap:parse 'parse::register "$0xa"))))
 
-(test to-register-nil
-      (expect-parse-error (parse:to-register '())))
+(test esrap-r-type-1
+      (is (equal '(parse::r "ADD" (parse::rr 5) (parse::rr 8) (parse::rr 1))
+                 (esrap:parse 'parse:instr "ADD $1 $5 $8"))))
 
-(test to-register-singleton
-      (expect-parse-error (parse:to-register '(lex::dollar))))
+(test esrap-r-type-2
+      (is (equal '(parse::r "NOT" (parse::rr 5) (parse::rr 0) (parse::rr 1))
+                 (esrap:parse 'parse:instr "NOT $1 $5"))))
 
-(test to-register-zero
-      (is (= 0 (parse:to-register '(lex::dollar 0)))))
+(test esrap-r-type-3
+      (is (equal '(parse::r "CMP" (parse::rr 1) (parse::rr 5) (parse::rr 0))
+                 (esrap:parse 'parse:instr "CMP $1 $5"))))
 
-(test to-register-one
-      (is (= 1 (parse:to-register '(lex::dollar 1)))))
+;; (test esrap-i-type-1
+;;       (is (equal (list 'parse::i "LOAD" (list 'parse::rr 8) (list 'parse::rr 9) (list 'parse::r 1))
+;;                  (esrap:parse 'parse:instr "LOAD $8 1($9)"))))
 
-(test to-register-twenty-three
-      (is (= 23 (parse:to-register '(lex::dollar 23)))))
+;; (test esrap-i-type-2
+;;       (is (equal (list 'parse::i "STORE" (list 'parse::rr 3) (list 'parse::rr 5) (list 'parse::rr 3))
+;;                  (esrap:parse 'parse:instr "STORE $5 3($3)"))))
 
-(test to-register-zero-named
-      (is (= 0 (parse:to-register '(lex::dollar "zr")))))
+;; (test esrap-i-type-3
+;;       (is (equal (list 'parse::i "ORI" (list 'parse::rr 5) (list 'parse::rr 4) (list 'parse::r 2))
+;;                  (esrap:parse 'parse:instr "ORI $5 $4 2"))))
 
-(test to-register-twenty-four
-      (expect-parse-error (parse:to-register '(lex::dollar 24))))
+(test esrap-j-type-2
+      (is (equal '(parse::j "JRL" (parse::rr 0) (parse::l "FOO"))
+		 (esrap:parse 'parse:instr "JRL FOO"))))
 
-(test to-register-negative-one
-      (expect-parse-error (parse:to-register '(lex::dollar -1))))
-
-(test extract-r-type-no-registers
-      (expect-parse-error (parse:extract-r-type '("add") 0)))
-
-(test extract-r-type-two-registers
-      (expect-parse-error (parse:extract-r-type '("add" lex::dollar 2 lex::dollar 3) 0)))
-
-(test extract-r-type-cmp-three-registers
-      (expect-parse-error (parse:extract-r-type '("cmp" lex::dollar 2
-                                                  lex::dollar 3 lex::dollar 4) 0)))
-
-(test extract-r-type-simple-add
-      (is (equal '(:op util::ADD :d 2 :s1 3 :s2 4)
-                 (parse:extract-r-type '("add" lex::dollar 2
-                                         lex::dollar 3 lex::dollar 4) 0))))
-
-(test extract-r-type-simple-not
-      (is (equal '(:op util::NOT :d 2 :s1 3 :s2 0)
-                 (parse:extract-r-type '("not" lex::dollar 2 lex::dollar 3) 0))))
-
-(test extract-r-type-simple-cmp
-      (is (equal '(:op util::CMP :d 0 :s1 2 :s2 3)
-                 (parse:extract-r-type '("cmp" lex::dollar 2 lex::dollar 3) 0))))
+(test esrap-j-type-3
+      (is (equal '(parse::j "PUSH" (parse::rr 1) 0)
+		 (esrap:parse 'parse:instr "PUSH $1"))))

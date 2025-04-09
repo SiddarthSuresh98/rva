@@ -42,6 +42,8 @@ Comments start with a semi-colon ';' and all tokens after are ignored."
        (progn (read-line *standard-input* nil)
               'nl))
 
+      ((char= chr #\.) 'period)
+
       ((char= chr #\() 'left-paren)
       ((char= chr #\)) 'right-paren)
 
