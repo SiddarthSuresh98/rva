@@ -16,12 +16,9 @@
   "R-type instructions.")
 
 (defparameter type-i
-  '(LOAD LOADV ADDI SUBI SFTRI SFTLI ANDI ORI XORI STORE STOREV)
+  '(LOAD LOADV ADDI SUBI SFTRI SFTLI ANDI ORI XORI STORE STOREV MOV)
   "I-type instructions.")
 
 (defparameter type-j
   '(JMP JRL JAL BEQ BGT BUF BOF PUSH POP)
   "J-type instructions.")
-
-(defparameter label-loc '()
-  "A symbol table mapping label names to line indices.")

@@ -47,8 +47,14 @@ _/_/                                  _/_/  "
       (t (let ((tokens (lex:file->tokens file)))
            (if tokens
                (progn (pprint tokens)
-                      (terpri))
+                      (terpri)
+                      (format t "---~%"))
                (error "The file does not exist, or it could not be opened.~%"))
+           (if parse?
+               (let ((tokens (parse:tokens->ast tokens)))
+                 (progn (pprint tokens)
+                        (terpri)
+                        (format t "---~%"))))
            (format t "Nitimur in Vetitum~%"))))))
 
 

@@ -1,4 +1,4 @@
-helper(defpackage #:rva
+(defpackage #:rva
   (:use #:cl)
   (:export #:main))
 
@@ -22,5 +22,7 @@ helper(defpackage #:rva
   (:use #:cl)
   (:export #:parser-error
            #:tokens->ast
+           #:to-register
            ;; exported for testing only
-           #:extract-label))
+           #:extract-label
+           #:extract-r-type))
