@@ -10,18 +10,10 @@
 	   #:iota
 	   #:riffle))
 
-(defpackage #:lex
-  (:use #:cl)
-  (:export #:lexer-error
-           #:file->tokens
-           ;; exported for testing only
-           #:read-token))
-
 (defpackage #:parse
   (:use #:cl)
-  (:export #:parser-error
-           #:tokens->ast
-	   ;; exported for testing only
+  (:export ;; exported for testing only
+	   #:text
 	   #:register
 	   #:instr
 	   ))

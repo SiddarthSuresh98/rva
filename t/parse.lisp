@@ -37,22 +37,26 @@
       (is (equal '(parse::r "CMP" (parse::rr 1) (parse::rr 5) (parse::rr 0))
                  (esrap:parse 'parse:instr "CMP $1 $5"))))
 
-;; (test esrap-i-type-1
-;;       (is (equal (list 'parse::i "LOAD" (list 'parse::rr 8) (list 'parse::rr 9) (list 'parse::r 1))
-;;                  (esrap:parse 'parse:instr "LOAD $8 1($9)"))))
+(test esrap-i-type-1
+      (is (equal '(parse::i "LOAD" (parse::rr 8) (parse::rr 9) (parse::imm 1))
+                 (esrap:parse 'parse:instr "LOAD $8 1($9)"))))
 
-;; (test esrap-i-type-2
-;;       (is (equal (list 'parse::i "STORE" (list 'parse::rr 3) (list 'parse::rr 5) (list 'parse::rr 3))
-;;                  (esrap:parse 'parse:instr "STORE $5 3($3)"))))
+(test esrap-i-type-2
+      (is (equal '(parse::i "STORE" (parse::rr 3) (parse::rr 5) (parse::imm 3))
+                 (esrap:parse 'parse:instr "STORE $5 3($3)"))))
 
-;; (test esrap-i-type-3
-;;       (is (equal (list 'parse::i "ORI" (list 'parse::rr 5) (list 'parse::rr 4) (list 'parse::r 2))
-;;                  (esrap:parse 'parse:instr "ORI $5 $4 2"))))
+(test esrap-i-type-3
+      (is (equal '(parse::i "ORI" (parse::rr 5) (parse::rr 4) (parse::imm 2))
+                 (esrap:parse 'parse:instr "ORI $5 $4 2"))))
+
+(test esrap-j-type-1
+      (is (equal '(parse::j "JMP" (parse::rr 3) (parse::imm 3))
+		 (esrap:parse 'parse:instr "JMP 3($3)"))))
 
 (test esrap-j-type-2
       (is (equal '(parse::j "JRL" (parse::rr 0) (parse::l "FOO"))
 		 (esrap:parse 'parse:instr "JRL FOO"))))
 
 (test esrap-j-type-3
-      (is (equal '(parse::j "PUSH" (parse::rr 1) 0)
+      (is (equal '(parse::j "PUSH" (parse::rr 1) (parse::imm 0))
 		 (esrap:parse 'parse:instr "PUSH $1"))))
