@@ -1,6 +1,6 @@
 (in-package #:rva)
 
-(defparameter *banner*
+(defvar *banner*
   "      _/_/                                  _/_/
      _/                                      _/
     _/    _/  _/_/  _/      _/    _/_/_/    _/
@@ -30,7 +30,7 @@ _/_/                                  _/_/  "
   (print-splash)
   (let* ((args (clingon:command-arguments cmd))
          (file (car args))
-	 (emit? (not (clingon:getopt cmd :parse))))
+         (emit? (not (clingon:getopt cmd :parse))))
     (cond
       ;; complain about num arguments
       ((/= (length args) 1) (error "Wrong number of arguments.~%"))
@@ -38,8 +38,9 @@ _/_/                                  _/_/  "
        (error "The file is not an asm source code file.~%"))
       (t (let ((str (uiop:read-file-string file)))
            (if str
-	       (progn (pprint (esrap:parse 'parse:text (string-upcase str)))
+               (progn (pprint (esrap:parse 'parse:text (string-upcase str)))
                       (terpri)
+                      (maphash #'(lambda (k v) (format t "~A => ~A~%" k v)) util:label-table)
                       (format t "---~%"))
                (error "The file does not exist, or it could not be opened.~%"))
            (format t "Nitimur in Vetitum~%"))))))

@@ -15,15 +15,15 @@
 
 (test esrap-register-binary-ten
       (is (equal (list 'parse::rr 10)
-                 (esrap:parse 'parse::register "$0b1010"))))
+                 (esrap:parse 'parse::register "$0B1010"))))
 
 (test esrap-register-octal-ten
       (is (equal (list 'parse::rr 10)
-                 (esrap:parse 'parse::register "$0o12"))))
+                 (esrap:parse 'parse::register "$0O12"))))
 
 (test esrap-register-hex-ten
       (is (equal (list 'parse::rr 10)
-                 (esrap:parse 'parse::register "$0xa"))))
+                 (esrap:parse 'parse::register "$0XA"))))
 
 (test esrap-r-type-1
       (is (equal '(parse::r "ADD" (parse::rr 5) (parse::rr 8) (parse::rr 1))
@@ -51,12 +51,12 @@
 
 (test esrap-j-type-1
       (is (equal '(parse::j "JMP" (parse::rr 3) (parse::imm 3))
-		 (esrap:parse 'parse:instr "JMP 3($3)"))))
+                 (esrap:parse 'parse:instr "JMP 3($3)"))))
 
 (test esrap-j-type-2
       (is (equal '(parse::j "JRL" (parse::rr 0) (parse::l "FOO"))
-		 (esrap:parse 'parse:instr "JRL FOO"))))
+                 (esrap:parse 'parse:instr "JRL FOO"))))
 
 (test esrap-j-type-3
       (is (equal '(parse::j "PUSH" (parse::rr 1) (parse::imm 0))
-		 (esrap:parse 'parse:instr "PUSH $1"))))
+                 (esrap:parse 'parse:instr "PUSH $1"))))

@@ -8,7 +8,16 @@
            #:format-as-binary
 	   #:insert-in-middle
 	   #:iota
-	   #:riffle))
+	   #:riffle
+	   #:add-variable
+	   #:add-label
+	   #:get-variable
+	   #:get-label
+	   #:label-table
+	   #:r-type
+	   #:i-type
+	   #:j-type
+	   #:mnemonic-loc))
 
 (defpackage #:parse
   (:use #:cl)
