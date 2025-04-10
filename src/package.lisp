@@ -21,8 +21,4 @@
 
 (defpackage #:parse
   (:use #:cl)
-  (:export #:str->ast
-	   ;; exported for testing only
-	   #:register
-	   #:instr
-	   ))
+  (:export #:str->ast))

@@ -13,7 +13,7 @@
   (:constant nil))
 
 (esrap:defrule nl-inc (+ #\newline)
-  (:destructure (n)
+  (:lambda (n)
     (declare (ignore n))
     (incf line-number)
     nil))
@@ -45,6 +45,9 @@
 (esrap:defrule register (and #\$ int)
   (:function cadr)
   (:lambda (e) (list 'rr e)))
+
+(esrap:defrule var alpha
+  (:lambda (e) (list (list 'rr 0) (list 'var e))))
 
 (esrap:defrule dereference (and (esrap:? (or #\+ #\-)) int #\( register #\))
   (:destructure (s i1 w1 r w2)
@@ -107,12 +110,12 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr i-type-3 'i (0 1 2) register register immediate)
 (defrule-instr j-type-3 'j (1 0) label)
 
-(esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference alpha))
+(esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference var))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(i ,m ,s ,@di)))
 
-(esrap:defrule i-type-2 (and i-type-2-m space register space (or dereference alpha))
+(esrap:defrule i-type-2 (and i-type-2-m space register space (or dereference var))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(i ,m ,@(util:insert-in-middle di s))))
@@ -142,8 +145,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 (esrap:defrule text (and ".TEXT" (esrap:? space) nl (* text-line))
   (:function cadddr)
-  (:lambda (e)
-    `(t ,@(remove nil e))))
+  (:lambda (e) `(x ,@(remove nil e))))
 
 ;;; defines rules to parse the .data segment
 
@@ -163,11 +165,10 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 (esrap:defrule data (and ".DATA" (esrap:? space) nl (* data-line))
   (:function cadddr)
-  (:lambda (e)
-    (list 'd (apply #'append e))))
+  (:lambda (e) `(d ,@(apply #'append e))))
 
 ;;; defines rules to parse a program
 
-(esrap:defrule str->ast (* (or data text))
-  (:lambda (e)
-    (list 'p (apply #'append e))))
+(esrap:defrule str->ast (and (* (or space nl)) (* (or data text)))
+  (:function cadr)
+  (:lambda (e) `(p ,@e)))
