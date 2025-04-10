@@ -10,6 +10,7 @@ A common-lisp implementation (SBCL) and the following libraries are required to 
 - ASDF (tested with v3.3.7)
 - fiveam (tested with v3.3.7)
 - clingon (tested with v0.5.0-1.f2a730f)
+- esrap (tested with v0.18-4.d806138)
 
 ## To run
 

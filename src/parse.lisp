@@ -1,42 +1,50 @@
 (in-package #:parse)
 
-(defparameter line-number 0)
+(defparameter line-number 0
+  "The number of real instructions processed up until this point.")
+(defparameter var-offset 0
+  "The number of variables processed up until this point.")
 
 (esrap:defrule space
     (+ (or #\space #\tab))
   (:constant nil))
 
-(esrap:defrule newline
-    (+ #\newline)
+(esrap:defrule nl (+ #\newline)
+  (:constant nil))
+
+(esrap:defrule nl-inc (+ #\newline)
   (:destructure (n)
     (declare (ignore n))
     (incf line-number)
     nil))
+
+(esrap:defrule alpha (+ (alphanumericp character))
+  (:text t))
 
 ;;; defines rules to parse an integer in various bases
 
 (defmacro define-number-rule ())
 
 (esrap:defrule binary (and #\0 #\B (+ (or "0" "1")))
-  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 2)))
+  (:lambda (e) (parse-integer (esrap:text (cddr e)) :radix 2)))
 
 (esrap:defrule octal (and #\0 #\O (+ (or (esrap:character-ranges (#\0 #\7)))))
-  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 8)))
+  (:lambda (e) (parse-integer (esrap:text (cddr e)) :radix 8)))
 
 (esrap:defrule decimal (+ (or (esrap:character-ranges (#\0 #\9))))
-  (:lambda (list) (parse-integer (esrap:text list) :radix 10)))
+  (:lambda (e) (parse-integer (esrap:text e) :radix 10)))
 
 (esrap:defrule hex (and #\0 #\X (+ (or (esrap:character-ranges (#\0 #\9))
                                        "A" "B" "C" "D" "E" "F")))
-  (:lambda (list) (parse-integer (esrap:text (cddr list)) :radix 16)))
+  (:lambda (e) (parse-integer (esrap:text (cddr e)) :radix 16)))
 
 (esrap:defrule int (or binary octal hex decimal))
 
 ;;; defines rules to parse an operand
 
-(esrap:defrule register (and #\$ (or int reg-id))
+(esrap:defrule register (and #\$ int)
   (:function cadr)
-  (:lambda (id) (list 'rr id)))
+  (:lambda (e) (list 'rr e)))
 
 (esrap:defrule dereference (and (esrap:? (or #\+ #\-)) int #\( register #\))
   (:destructure (s i1 w1 r w2)
@@ -44,19 +52,17 @@
     (list r (list 'imm (if (and s (string= s "-")) (- i1) i1)))))
 
 (esrap:defrule immediate int
-  (:lambda (i) (list 'imm i)))
+  (:lambda (e) (list 'imm e)))
 
 ;;; defines rules to parse labels
 
-(esrap:defrule label (+ (alphanumericp character))
-  (:lambda (list) (list 'l (esrap:text list))))
+(esrap:defrule label alpha
+  (:lambda (e) (list 'l e)))
 
 (esrap:defrule label-decl (and label #\:)
   (:function car)
-  (:lambda (l)
-    (util:add-label l line-number)
-    ;; this line isn't in the final program
-    (decf line-number)
+  (:lambda (e)
+    (util:add-label e line-number)
     nil))
 
 ;;; defines rules to parse instruction types
@@ -79,6 +85,7 @@
 (generate-mnemonic 'i-type-3-m (reverse util:i-type))
 (generate-mnemonic 'j-type-3-m (reverse util:j-type))
 
+;; TODO this is pretty gross
 (defmacro defrule-instr (name type-id order &rest destructure-pattern)
   "Defines the boilerplate for a common esrap instruction rule.
 NAME is the name of the non-terminal symbol.
@@ -100,12 +107,12 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr i-type-3 'i (0 1 2) register register immediate)
 (defrule-instr j-type-3 'j (1 0) label)
 
-(esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
+(esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference alpha))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(i ,m ,s ,@di)))
 
-(esrap:defrule i-type-2 (and i-type-2-m space register space dereference)
+(esrap:defrule i-type-2 (and i-type-2-m space register space (or dereference alpha))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(i ,m ,@(util:insert-in-middle di s))))
@@ -121,17 +128,46 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
     `(j ,m ,r (imm 0))))
 
 (esrap:defrule instr (or r-type-1 r-type-2 r-type-3 i-type-1 i-type-2
-                         i-type-3 j-type-1 j-type-2 j-type-3 label-decl))
+                         i-type-3 j-type-1 j-type-2 j-type-3))
 
 ;;; defines rules to parse the .text segment
 
-(esrap:defrule instr-clean (and (esrap:? space) instr newline)
+(esrap:defrule instr-clean (and (esrap:? space) instr (esrap:? space) nl-inc)
   (:function cadr))
 
-(esrap:defrule text (and ".TEXT" newline
-                         (* instr-clean))
-  (:function caddr)
-  (:lambda (instr)
-    `(text ,@(remove nil instr))))
+(esrap:defrule label-clean (and label-decl (esrap:? space) nl)
+  (:function car))
+
+(esrap:defrule text-line (or instr-clean label-clean))
+
+(esrap:defrule text (and ".TEXT" (esrap:? space) nl (* text-line))
+  (:function cadddr)
+  (:lambda (e)
+    `(t ,@(remove nil e))))
 
 ;;; defines rules to parse the .data segment
+
+(esrap:defrule data-word (and (esrap:? space) int)
+  (:function cadr)
+  (:lambda (e)
+    (incf var-offset)
+    e))
+
+(esrap:defrule var-decl alpha
+  (:lambda (e)
+    (util:add-variable e var-offset)
+    nil))
+
+(esrap:defrule data-line (and (esrap:? space) var-decl (+ data-word) (esrap:? space) nl)
+  (:function caddr))
+
+(esrap:defrule data (and ".DATA" (esrap:? space) nl (* data-line))
+  (:function cadddr)
+  (:lambda (e)
+    (list 'd (apply #'append e))))
+
+;;; defines rules to parse a program
+
+(esrap:defrule str->ast (* (or data text))
+  (:lambda (e)
+    (list 'p (apply #'append e))))
