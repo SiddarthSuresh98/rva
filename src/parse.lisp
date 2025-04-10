@@ -44,25 +44,25 @@
 
 (esrap:defrule register (and #\$ int)
   (:function cadr)
-  (:lambda (e) (list 'rr e)))
+  (:lambda (e) (list 'emit::rr e)))
 
 (esrap:defrule var alpha
-  (:lambda (e) (list (list 'rr 0) (list 'var e))))
+  (:lambda (e) (list (list 'emit::rr 0) (list 'emit::var e))))
 
 (esrap:defrule dereference (and (esrap:? (or #\+ #\-)) int #\( register #\))
   (:destructure (s i1 w1 r w2)
     (declare (ignore w1 w2))
-    (list r (list 'imm (if (and s (string= s "-")) (- i1) i1)))))
+    (list r (list 'emit::imm (if (and s (string= s "-")) (- i1) i1)))))
 
 (esrap:defrule immediate int
-  (:lambda (e) (list 'imm e)))
+  (:lambda (e) (list 'emit::imm e)))
 
 ;;; defines rules to parse labels
 
 (esrap:defrule label alpha
-  (:lambda (e) (list 'l e)))
+  (:lambda (e) (list 'emit::l e line-number)))
 
-(esrap:defrule label-decl (and label #\:)
+(esrap:defrule label-decl (and alpha #\:)
   (:function car)
   (:lambda (e)
     (util:add-label e line-number)
@@ -102,33 +102,33 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
          (and ,(read-from-string (format nil "~A-m" name)) ,@(util:riffle (make-list pattern-size :initial-element 'space) destructure-pattern))
        (:destructure (m ,@(util:riffle spaces vars))
          (declare (ignore ,@spaces))
-         (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(rr 0))) order))))))
+         (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(emit::rr 0))) order))))))
 
-(defrule-instr r-type-1 'r (1 2 0) register register)
-(defrule-instr r-type-2 'r (0 1 2) register register)
-(defrule-instr r-type-3 'r (1 2 0) register register register)
-(defrule-instr i-type-3 'i (0 1 2) register register immediate)
-(defrule-instr j-type-3 'j (1 0) label)
+(defrule-instr r-type-1 'emit::r (1 2 0) register register)
+(defrule-instr r-type-2 'emit::r (0 1 2) register register)
+(defrule-instr r-type-3 'emit::r (1 2 0) register register register)
+(defrule-instr i-type-3 'emit::i (0 1 2) register register immediate)
+(defrule-instr j-type-3 'emit::j (1 0) label)
 
 (esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference var))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
-    `(i ,m ,s ,@di)))
+    `(emit::i ,m ,s ,@di)))
 
 (esrap:defrule i-type-2 (and i-type-2-m space register space (or dereference var))
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
-    `(i ,m ,@(util:insert-in-middle di s))))
+    `(emit::i ,m ,@(util:insert-in-middle di s))))
 
 (esrap:defrule j-type-1 (and j-type-1-m space dereference)
   (:destructure (m w di)
     (declare (ignore w))
-    `(j ,m ,@di)))
+    `(emit::j ,m ,@di)))
 
 (esrap:defrule j-type-2 (and j-type-2-m space register)
   (:destructure (m w r)
     (declare (ignore w))
-    `(j ,m ,r (imm 0))))
+    `(emit::j ,m ,r (emit::imm 0))))
 
 (esrap:defrule instr (or r-type-1 r-type-2 r-type-3 i-type-1 i-type-2
                          i-type-3 j-type-1 j-type-2 j-type-3))
@@ -145,7 +145,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 (esrap:defrule text (and ".TEXT" (esrap:? space) nl (* text-line))
   (:function cadddr)
-  (:lambda (e) `(x ,@(remove nil e))))
+  (:lambda (e) `(emit::x ,@(remove nil e))))
 
 ;;; defines rules to parse the .data segment
 
@@ -165,10 +165,10 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 (esrap:defrule data (and ".DATA" (esrap:? space) nl (* data-line))
   (:function cadddr)
-  (:lambda (e) `(d ,@(apply #'append e))))
+  (:lambda (e) `(emit::d ,@(apply #'append e))))
 
 ;;; defines rules to parse a program
 
-(esrap:defrule str->ast (and (* (or space nl)) (* (or data text)))
-  (:function cadr)
-  (:lambda (e) `(p ,@e)))
+(esrap:defrule str->ast (and (* (or space nl)) data text)
+  (:function cdr)
+  (:lambda (e) `(emit::p ,@e)))

@@ -4,15 +4,13 @@
   "Returns t if FILE is extended with .asm, nil otherwise."
   (string= (pathname-type file) "asm"))
 
-(defun fits-in-X-bits (n)
-  "Returns the number of bits required to represent N"
-  (ceiling (/ (log (ceiling n (log 2))) (log 2))))
 
 (defun format-as-binary (num len)
   "Formats NUM as a binary number, and pads to LEN with zeros."
   (declare (type number        num))
   (declare (type (integer 0 *) len))
-  (format nil "~V,'0b" len num))
+  (let ((max-val (1- (expt 2 len))))
+    (format nil "~V,'0b" len (logand num max-val))))
 
 (defun insert-in-middle (list element)
   (append (list (car list)) (list element) (cdr list)))
@@ -33,8 +31,8 @@ of the elements from both lists. Returns nil if the lists are not equal size."
           for l2 in lst2
           append (list l1 l2))))
 
-(defvar variable-table (make-hash-table :test #'equal))
-(defvar label-table (make-hash-table :test #'equal))
+(defvar variable-table (make-hash-table :test #'equalp))
+(defvar label-table (make-hash-table :test #'equalp))
 
 (defun add-variable (name value)
   (if (gethash name variable-table)
@@ -49,24 +47,13 @@ of the elements from both lists. Returns nil if the lists are not equal size."
 (defun get-variable (name)
   (alexandria:if-let ((value (gethash name variable-table)))
     value
-    (error "~@<Variable ~S not declared.~@:>" name)))
+    (progn (maphash #'(lambda (k v) (format t "~A => ~A~%" k v)) variable-table)
+	   (error "~@<Variable ~S not declared.~@:>" name))))
 
 (defun get-label (name)
   (alexandria:if-let ((value (gethash name label-table)))
     value
     (error "~@<Label ~S not found.~@:>" name)))
-
-(defmacro generate-type-map (ops)
-  "Generates an alist where the key corresponds to an element in
-OPS, while the value is the index of that key (padded to the minimum
-number of bits required to represent all
-concatenated with TYPE."
-  `(let ((i 0)
-         (opsize (fits-in-X-bits (length ,ops))))
-     (mapcar (lambda (x)
-               (incf i)
-               (cons x (format-as-binary i opsize)))
-             ,ops)))
 
 (defvar r-type
   '("ADD" "SUB" "MUL" "QUOT" "REM" "SFTR" "SFTL" "AND" "OR"
@@ -80,9 +67,3 @@ concatenated with TYPE."
 (defvar j-type
   '("JMP" "JRL" "JAL" "BEQ" "BGT" "BUF" "BOF" "PUSH" "POP")
   "J-type instructions.")
-
-(defvar mnemonic-loc
-  `(,@(generate-type-map r-type)
-    ,@(generate-type-map i-type)
-    ,@(generate-type-map j-type))
-  "An alist mapping known mnemonics to their binary representation.")

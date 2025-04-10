@@ -13,12 +13,15 @@
 	   #:add-label
 	   #:get-variable
 	   #:get-label
-	   #:label-table
 	   #:r-type
 	   #:i-type
-	   #:j-type
-	   #:mnemonic-loc))
+	   #:j-type))
 
 (defpackage #:parse
   (:use #:cl)
-  (:export #:str->ast))
+  (:export #:str->ast
+	   #:line-number))
+
+(defpackage #:emit
+  (:use #:cl)
+  (:export #:emit))

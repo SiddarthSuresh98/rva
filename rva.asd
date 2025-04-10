@@ -16,6 +16,7 @@
                 :components ((:file "package")
                              (:file "util")
 			     (:file "parse")
+			     (:file "emit")
                              (:file "main"))))
   :long-description
   #.(uiop:read-file-string

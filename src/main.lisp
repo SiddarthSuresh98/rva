@@ -38,10 +38,9 @@ _/_/                                  _/_/  "
        (error "The file is not an asm source code file.~%"))
       (t (let ((str (uiop:read-file-string file)))
            (if str
-               (progn (pprint (esrap:parse 'parse:str->ast (string-upcase str)))
-                      (terpri)
-                      (maphash #'(lambda (k v) (format t "~A => ~A~%" k v)) util:label-table)
-                      (format t "---~%"))
+	       (let ((ast (esrap:parse 'parse::str->ast (string-upcase str))))
+		 (when emit?
+		   (format t "~a~%" (emit::emit ast))))
                (error "The file does not exist, or it could not be opened.~%"))
            (format t "Nitimur in Vetitum~%"))))))
 

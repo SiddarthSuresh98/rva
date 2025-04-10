@@ -16,13 +16,17 @@
       (is (util:asm-extension? "quux.asm")))
 
 (test format-as-binary-unsigned-no-pad
-      (is (string= (util:format-as-binary 0 0)
-		   "0")))
+      (is (string= "0"
+		   (util:format-as-binary 0 0))))
 
 (test format-as-binary-unsigned-no-pad-fourty-two
-      (is (string= (util:format-as-binary 42 0)
-		   "101010")))
+      (is (string= "101010"
+		   (util:format-as-binary 42 6))))
 
 (test format-as-binary-unsigned-pad-fourty-two
-      (is (string= (util:format-as-binary 42 10)
-		   "0000101010")))
+      (is (string= "0000101010"
+		   (util:format-as-binary 42 10))))
+
+(test format-as-binary-overflow
+      (is (string= "10"
+		   (util:format-as-binary 10 2))))
