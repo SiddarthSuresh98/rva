@@ -10,13 +10,13 @@
   :source-control (:git "git@github.com:bdunahu/rva.git")
   :depends-on (:uiop
                :clingon
-               :trivia)
+	       :esrap)
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
                              (:file "util")
-                             (:file "lex")
-                             (:file "parse")
+			     (:file "parse")
+			     (:file "emit")
                              (:file "main"))))
   :long-description
   #.(uiop:read-file-string
@@ -37,7 +37,6 @@
                 :components ((:file "package")
                              (:file "main")
                              (:file "util")
-                             (:file "lex")
                              (:file "parse"))))
   :perform (test-op (o s) (uiop:symbol-call :rva-tests :test-rva)))
 

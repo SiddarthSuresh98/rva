@@ -1,4 +1,4 @@
-helper(defpackage #:rva
+(defpackage #:rva
   (:use #:cl)
   (:export #:main))
 
@@ -6,21 +6,22 @@ helper(defpackage #:rva
   (:use #:cl)
   (:export #:asm-extension?
            #:format-as-binary
-           #:type-r
-           #:type-i
-           #:type-j
-           #:label-loc))
-
-(defpackage #:lex
-  (:use #:cl)
-  (:export #:lexer-error
-           #:file->tokens
-           ;; exported for testing only
-           #:read-token))
+	   #:insert-in-middle
+	   #:iota
+	   #:riffle
+	   #:add-variable
+	   #:add-label
+	   #:get-variable
+	   #:get-label
+	   #:r-type
+	   #:i-type
+	   #:j-type))
 
 (defpackage #:parse
   (:use #:cl)
-  (:export #:parser-error
-           #:tokens->ast
-           ;; exported for testing only
-           #:extract-label))
+  (:export #:str->ast
+	   #:line-number))
+
+(defpackage #:emit
+  (:use #:cl)
+  (:export #:emit))

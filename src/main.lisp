@@ -1,6 +1,6 @@
 (in-package #:rva)
 
-(defparameter *banner*
+(defvar *banner*
   "      _/_/                                  _/_/
      _/                                      _/
     _/    _/  _/_/  _/      _/    _/_/_/    _/
@@ -19,13 +19,6 @@ _/_/                                  _/_/  "
   (list
    (clingon:make-option
     :flag
-    :description "run the lexer, but stop before parsing"
-    :long-name "lex"
-    :short-name #\l
-    :required nil
-    :key :lex)
-   (clingon:make-option
-    :flag
     :description "run the parser, but stop before emission"
     :long-name "parse"
     :short-name #\p
@@ -37,17 +30,17 @@ _/_/                                  _/_/  "
   (print-splash)
   (let* ((args (clingon:command-arguments cmd))
          (file (car args))
-         (parse? (not (clingon:getopt cmd :lex)))
          (emit? (not (clingon:getopt cmd :parse))))
     (cond
       ;; complain about num arguments
       ((/= (length args) 1) (error "Wrong number of arguments.~%"))
       ((not (util:asm-extension? file))
        (error "The file is not an asm source code file.~%"))
-      (t (let ((tokens (lex:file->tokens file)))
-           (if tokens
-               (progn (pprint tokens)
-                      (terpri))
+      (t (let ((str (uiop:read-file-string file)))
+           (if str
+	       (let ((ast (esrap:parse 'parse::str->ast (string-upcase str))))
+		 (when emit?
+		   (format t "~a~%" (emit::emit ast))))
                (error "The file does not exist, or it could not be opened.~%"))
            (format t "Nitimur in Vetitum~%"))))))
 
