@@ -62,10 +62,10 @@
            '(emit::p
 	     (emit::d)
              (emit::x
-              (emit::i "LOADV" (emit::rr 8) (emit::rr 0) (emit::var "vector"))
-              (emit::i "STORE" (emit::rr 0) (emit::rr 5) (emit::var "int"))))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 vector
-~tSTORE $5 int~%")))))
+              (emit::i "LOADV" (emit::rr 8) (emit::rr 4) (emit::imm 2))
+              (emit::i "STORE" (emit::rr 1) (emit::rr 5) (emit::imm 2))))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 2($4)
+~tSTORE $5 2($1)~%")))))
 
 (test esrap-instr-type-all-lazy-spaces
       (is (equal
@@ -86,7 +86,7 @@ JRL FOO~t~%PUSH $5~%")))))
 	     (emit::x))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~tA 1~%.TEXT~%")))))
 
-(test esrap-data-loaded
+(test esrap-data-loadedp
       (is (equal
            '(emit::p
              (emit::d
@@ -128,9 +128,9 @@ H 3 5~%.TEXT~%")))))
              (emit::d
               1 2 3 4 3 0)
              (emit::x
-              (emit::i "LOAD" (emit::rr 5) (emit::rr 0) (emit::var "S"))
-              (emit::i "LOAD" (emit::rr 10) (emit::rr 0) (emit::var "ARR"))
-              (emit::i "LOAD" (emit::rr 6) (emit::rr 0) (emit::var "I"))
+              (emit::i "ADDI" (emit::rr 0) (emit::rr 5) (emit::imm (emit::var "S")))
+              (emit::i "ADDI" (emit::rr 0) (emit::rr 10) (emit::imm (emit::var "ARR")))
+              (emit::i "ADDI" (emit::rr 0) (emit::rr 6) (emit::imm (emit::var "I")))
               (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 20))
               (emit::r "ADD" (emit::rr 10) (emit::rr 6) (emit::rr 9))
               (emit::i "ADDI" (emit::rr 6) (emit::rr 6) (emit::imm 1))
@@ -143,9 +143,9 @@ H 3 5~%.TEXT~%")))))
         I   0
 
 .TEXT
-        LOAD $5 S
-        LOAD $10 ARR
-        LOAD $6 I
+        ADDI $5 $0 S
+        ADDI $10 $0 ARR
+        ADDI $6 $0 I
         JRL CMP
 L:
         ADD $9 $10 $6

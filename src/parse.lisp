@@ -50,15 +50,15 @@
   (:function cadr)
   (:lambda (e) (list 'emit::rr e)))
 
-(esrap:defrule var alpha
-  (:lambda (e) (list (list 'emit::rr 0) (list 'emit::var e))))
+(esrap:defrule variable alpha
+  (:lambda (e) (list 'emit::var e)))
 
 (esrap:defrule dereference (and int #\( register #\))
   (:destructure (i1 w1 r w2)
     (declare (ignore w1 w2))
     (list r (list 'emit::imm i1))))
 
-(esrap:defrule immediate int
+(esrap:defrule immediate (or int variable)
   (:lambda (e) (list 'emit::imm e)))
 
 ;;; defines rules to parse labels
@@ -114,12 +114,12 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
 (defrule-instr j-type-3 'emit::j (1 0) label)
 
-(esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference var))
+(esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(emit::i ,m ,s ,@di)))
 
-(esrap:defrule i-type-2 (and i-type-2-m space register space (or dereference var))
+(esrap:defrule i-type-2 (and i-type-2-m space register space dereference)
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(emit::i ,m ,@(util:insert-in-middle di s))))
