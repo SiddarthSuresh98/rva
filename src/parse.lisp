@@ -9,10 +9,13 @@
     (+ (or #\space #\tab))
   (:constant nil))
 
-(esrap:defrule nl (+ #\newline)
+(esrap:defrule eol (and (esrap:? space) (esrap:? (and #\; (* (not #\newline)))) #\newline)
   (:constant nil))
 
-(esrap:defrule nl-inc (+ #\newline)
+(esrap:defrule nl (+ eol)
+  (:constant nil))
+
+(esrap:defrule nl-inc (+ eol)
   (:lambda (n)
     (declare (ignore n))
     (incf line-number)
@@ -139,10 +142,10 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 ;;; defines rules to parse the .text segment
 
-(esrap:defrule instr-clean (and (esrap:? space) instr (esrap:? space) nl-inc)
+(esrap:defrule instr-clean (and (esrap:? space) instr nl-inc)
   (:function cadr))
 
-(esrap:defrule label-clean (and label-decl (esrap:? space) nl)
+(esrap:defrule label-clean (and label-decl nl)
   (:function car))
 
 (esrap:defrule text-line (or instr-clean label-clean))
@@ -164,7 +167,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
     (util:add-variable e var-offset)
     nil))
 
-(esrap:defrule data-line (and (esrap:? space) var-decl (+ data-word) (esrap:? space) nl)
+(esrap:defrule data-line (and (esrap:? space) var-decl (+ data-word) nl)
   (:function caddr))
 
 (esrap:defrule data (and ".DATA" (esrap:? space) nl (* data-line))
