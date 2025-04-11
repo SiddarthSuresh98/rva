@@ -1,12 +1,16 @@
+;;;;;;;;
+;;; adds adjacent elements of a 4-element vector together,
+;;; storing the result in place.
+
 .data
 	arr 1 2 3 4
 	s   3
 	i   0
 
 .text
-	load $5 s
-	load $10 arr
-	load $6 i
+	addi $5 $5 s
+	addi $10 $10 arr
+	addi $6 $6 i
         jrl CMP
 L:
 	add $9 $10 $6
@@ -17,5 +21,5 @@ L:
         store $7 0($9)
         addi $6 $6 0x1
 CMP:
-        cmp $6 $5
+        cmp $5 $6
         bgt L

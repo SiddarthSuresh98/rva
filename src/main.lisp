@@ -65,7 +65,7 @@ _/_/                                  _/_/  "
                      (let ((words (emit:emit ast)))
                        (if write?
                            (postprocess words file)
-                           (format t "Emission successfull, got: ~%~a~%" words)))
+                           (format t "Emission successful, got: ~%~a~%" words)))
                      (format t "Parse successful, got:~%~a~%" (emit:ast->str ast))))
                (error "The file does not exist, or it could not be opened.~%")))))))
 

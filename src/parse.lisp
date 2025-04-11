@@ -51,13 +51,13 @@
 (esrap:defrule variable alphanumeric
   (:lambda (e) (list 'emit::var e)))
 
-(esrap:defrule dereference (and integer #\( register #\))
-  (:destructure (i1 w1 r w2)
-    (declare (ignore w1 w2))
-    (list r (list 'emit::imm i1))))
-
 (esrap:defrule immediate (or integer variable)
   (:lambda (e) (list 'emit::imm e)))
+
+(esrap:defrule dereference (and immediate #\( register #\))
+  (:destructure (i1 w1 r w2)
+    (declare (ignore w1 w2))
+    (list r i1)))
 
 ;;; defines rules to parse labels
 
