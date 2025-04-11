@@ -6,22 +6,25 @@
   (:use #:cl)
   (:export #:asm-extension?
            #:format-as-binary
-	   #:insert-in-middle
-	   #:iota
-	   #:riffle
-	   #:add-variable
-	   #:add-label
-	   #:get-variable
-	   #:get-label
-	   #:r-type
-	   #:i-type
-	   #:j-type))
+           #:generate-file-name
+           #:word-to-bytes
+           #:insert-in-middle
+           #:iota
+           #:riffle
+           #:add-variable
+           #:add-label
+           #:get-variable
+           #:get-label
+           #:r-type
+           #:i-type
+           #:j-type))
 
 (defpackage #:parse
   (:use #:cl)
   (:export #:str->ast
-	   #:line-number))
+           #:line-number))
 
 (defpackage #:emit
   (:use #:cl)
-  (:export #:emit))
+  (:export #:emit
+           #:ast->str))

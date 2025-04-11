@@ -4,7 +4,7 @@
 (asdf:defsystem #:rva
   ;; :author ""
   ;; :license ""
-  :version "0.3"
+  :version "1.0"
   :homepage "https://github.com/bdunahu/rva"
   :description "Assembler for the RISC-V[ECTOR] mini-ISA."
   :source-control (:git "git@github.com:bdunahu/rva.git")

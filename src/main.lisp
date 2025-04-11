@@ -23,27 +23,51 @@ _/_/                                  _/_/  "
     :long-name "parse"
     :short-name #\p
     :required nil
-    :key :parse)))
+    :key :parse)
+   (clingon:make-option
+    :flag
+    :description "run the emitter, but stop before writing"
+    :long-name "emit"
+    :short-name #\e
+    :required nil
+    :key :emit)))
+
+(defun postprocess (out file)
+  "Given OUT, a list of words, writes the raw bytes to FILE."
+  (let ((file (util:generate-file-name file))
+        (bytes (alexandria:flatten
+                (mapcar (lambda (x)
+                          (util:word-to-bytes (parse-integer x :radix 2)))
+                        out))))
+    (with-open-file (stream file
+                            :direction :output
+                            :if-exists :supersede
+                            :if-does-not-exist :create
+                            :element-type '(unsigned-byte 8))
+      (loop for byte in bytes do (write-byte byte stream)))
+    (format t "File written! Check ~a~%" file)))
 
 (defun driver (cmd)
   "Reads in a file and directs lexing, parsing, and binary emission."
   (print-splash)
   (let* ((args (clingon:command-arguments cmd))
          (file (car args))
-         (emit? (not (clingon:getopt cmd :parse))))
+         (emit? (not (clingon:getopt cmd :parse)))
+         (write? (not (clingon:getopt cmd :emit))))
     (cond
-      ;; complain about num arguments
       ((/= (length args) 1) (error "Wrong number of arguments.~%"))
       ((not (util:asm-extension? file))
        (error "The file is not an asm source code file.~%"))
       (t (let ((str (uiop:read-file-string file)))
            (if str
-	       (let ((ast (esrap:parse 'parse::str->ast (string-upcase str))))
-		 (when emit?
-		   (format t "~a~%" (emit::emit ast))))
-               (error "The file does not exist, or it could not be opened.~%"))
-           (format t "Nitimur in Vetitum~%"))))))
-
+               (let ((ast (esrap:parse 'parse::str->ast (string-upcase str))))
+                 (if emit?
+                     (let ((words (emit:emit ast)))
+                       (if write?
+                           (postprocess words file)
+                           (format t "Emission successfull, got: ~%~a~%" words)))
+                     (format t "Parse successful, got:~%~a~%" (emit:ast->str ast))))
+               (error "The file does not exist, or it could not be opened.~%")))))))
 
 (defun cli/command ()
   "Returns a clingon command."
@@ -51,7 +75,7 @@ _/_/                                  _/_/  "
    :name "rva"
    :description "generates a binary compatible with the RISC V[ECTOR] simulator"
    :usage "[options] file"
-   :version(asdf:component-version
+   :version (asdf:component-version
             (asdf:find-system "rva" nil))
    :options (cli/options)
    :handler #'driver))

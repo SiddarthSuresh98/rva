@@ -4,6 +4,9 @@
   "Returns t if FILE is extended with .asm, nil otherwise."
   (string= (pathname-type file) "asm"))
 
+(defun generate-file-name (file)
+  "Given a .asm file, generates an identically named .rv file."
+  (subseq file 0 (- (length file) 4)))
 
 (defun format-as-binary (num len)
   "Formats NUM as a binary number, and pads to LEN with zeros."
@@ -12,7 +15,15 @@
   (let ((max-val (1- (expt 2 len))))
     (format nil "~V,'0b" len (logand num max-val))))
 
+(defun word-to-bytes (int)
+  "Given a 32-bit integer, outputs a list of 4 bytes."
+  (list (logand #xff (ash int -24))
+        (logand #xff (ash int -16))
+        (logand #xff (ash int -8))
+        (logand #xff int)))
+
 (defun insert-in-middle (list element)
+  "Inserts ELEMENT in the second slot of LIST."
   (append (list (car list)) (list element) (cdr list)))
 
 (defun iota (n)
@@ -48,7 +59,7 @@ of the elements from both lists. Returns nil if the lists are not equal size."
   (alexandria:if-let ((value (gethash name variable-table)))
     value
     (progn (maphash #'(lambda (k v) (format t "~A => ~A~%" k v)) variable-table)
-	   (error "~@<Variable ~S not declared.~@:>" name))))
+           (error "~@<Variable ~S not declared.~@:>" name))))
 
 (defun get-label (name)
   (alexandria:if-let ((value (gethash name label-table)))
