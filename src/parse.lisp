@@ -107,7 +107,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr r-type-1 'emit::r (1 2 0) register register)
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
 (defrule-instr r-type-3 'emit::r (1 2 0) register register register)
-(defrule-instr i-type-3 'emit::i (0 1 2) register register immediate)
+(defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
 (defrule-instr j-type-3 'emit::j (1 0) label)
 
 (esrap:defrule i-type-1 (and i-type-1-m space register space (or dereference var))

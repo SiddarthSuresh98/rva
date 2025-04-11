@@ -34,7 +34,7 @@
              (emit::x
               (emit::i "LOADV" (emit::rr 8) (emit::rr 9) (emit::imm 1))
               (emit::i "STORE" (emit::rr 3) (emit::rr 5) (emit::imm 3))
-              (emit::i "ADDI" (emit::rr 5) (emit::rr 4) (emit::imm 2))))
+              (emit::i "ADDI" (emit::rr 4) (emit::rr 5) (emit::imm 2))))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 1($9)
 ~tSTORE $5 3($3)~%~tADDI $5 $4 2~%")))))
 
