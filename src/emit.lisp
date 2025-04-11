@@ -52,8 +52,6 @@ concatenated with TYPE."
       (util:format-as-binary val 5)
       (error (format nil "~a is not a valid register id!~%" val))))
 
-(defun imm (val) val)
-
 (defun l (l s)
   (let ((d (util:get-label l)))
     (- d s)))

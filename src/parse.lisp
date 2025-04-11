@@ -52,7 +52,7 @@
   (:lambda (e) (list 'emit::var e)))
 
 (esrap:defrule immediate (or integer variable)
-  (:lambda (e) (list 'emit::imm e)))
+  (:lambda (e) e))
 
 (esrap:defrule dereference (and immediate #\( register #\))
   (:destructure (i1 w1 r w2)
@@ -130,7 +130,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (esrap:defrule j-type-2 (and j-type-2-m space register)
   (:destructure (m w r)
     (declare (ignore w))
-    `(emit::j ,m ,r (emit::imm 0))))
+    `(emit::j ,m ,r 0)))
 
 (esrap:defrule instr (or r-type-1 r-type-2 r-type-3 i-type-1 i-type-2
                          i-type-3 j-type-1 j-type-2 j-type-3))
