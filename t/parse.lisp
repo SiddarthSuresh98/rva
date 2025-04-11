@@ -113,6 +113,15 @@ JRL FOO~t~%PUSH $5~%")))))
            (esrap:parse 'parse:str->ast (format nil "~%~t.DATA~t~%F 5 6 7 8~t~%G 4
 H 3 5~%.TEXT~%")))))
 
+(test esrap-negative-ints
+      (is (equal
+	   '(emit::p
+	     (emit::d
+	      -1)
+	     (emit::x
+	      (emit::i "LOADV" (emit::rr -8) (emit::rr -3) (emit::imm -3))))
+	   (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tLOADV $-8 -3($-3)~%")))))
+
 (test esrap-data-full
       (is (equal
            '(emit::p
@@ -122,11 +131,11 @@ H 3 5~%.TEXT~%")))))
               (emit::i "LOAD" (emit::rr 5) (emit::rr 0) (emit::var "S"))
               (emit::i "LOAD" (emit::rr 10) (emit::rr 0) (emit::var "ARR"))
               (emit::i "LOAD" (emit::rr 6) (emit::rr 0) (emit::var "I"))
-              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 19))
+              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 20))
               (emit::r "ADD" (emit::rr 10) (emit::rr 6) (emit::rr 9))
               (emit::i "ADDI" (emit::rr 6) (emit::rr 6) (emit::imm 1))
               (emit::r "CMP" (emit::rr 6) (emit::rr 5) (emit::rr 0))
-              (emit::j "BGT" (emit::rr 0) (emit::l "L" 23))))
+              (emit::j "BGT" (emit::rr 0) (emit::l "L" 24))))
            (esrap:parse 'parse:str->ast (format nil "
 .DATA
         ARR 1 2 3 4

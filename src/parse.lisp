@@ -18,6 +18,8 @@
     (incf line-number)
     nil))
 
+(esrap:defrule sign (or #\+ #\-))
+
 (esrap:defrule alpha (+ (alphanumericp character))
   (:text t))
 
@@ -38,7 +40,9 @@
                                        "A" "B" "C" "D" "E" "F")))
   (:lambda (e) (parse-integer (esrap:text (cddr e)) :radix 16)))
 
-(esrap:defrule int (or binary octal hex decimal))
+(esrap:defrule int (and (esrap:? sign) (or binary octal hex decimal))
+  (:destructure (s i)
+    (if (and s (string= s "-")) (- i) i)))
 
 ;;; defines rules to parse an operand
 
@@ -49,10 +53,10 @@
 (esrap:defrule var alpha
   (:lambda (e) (list (list 'emit::rr 0) (list 'emit::var e))))
 
-(esrap:defrule dereference (and (esrap:? (or #\+ #\-)) int #\( register #\))
-  (:destructure (s i1 w1 r w2)
+(esrap:defrule dereference (and int #\( register #\))
+  (:destructure (i1 w1 r w2)
     (declare (ignore w1 w2))
-    (list r (list 'emit::imm (if (and s (string= s "-")) (- i1) i1)))))
+    (list r (list 'emit::imm i1))))
 
 (esrap:defrule immediate int
   (:lambda (e) (list 'emit::imm e)))
