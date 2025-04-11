@@ -31,7 +31,9 @@ concatenated with TYPE."
   (mapcar (lambda (x) (util:format-as-binary x 32)) lst))
 
 (defun x (&rest lst)
-  lst)
+  (append lst
+	  ;; add a halt to the end of the instructions list
+	  (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
 
 (defun r (mnemonic s1 s2 d)
   (concatenate
@@ -58,7 +60,7 @@ concatenated with TYPE."
 
 (defun var (s)
   (let ((pos (util:get-variable s)))
-    (+ pos parse:line-number)))
+    (+ pos parse:line-number 1)))
 
 (defun emit (p)
   (eval p))
