@@ -15,12 +15,6 @@
 (esrap:defrule nl (+ eol)
   (:constant nil))
 
-(esrap:defrule nl-inc (+ eol)
-  (:lambda (n)
-    (declare (ignore n))
-    (incf line-number)
-    nil))
-
 (esrap:defrule sign (or #\+ #\-))
 
 (esrap:defrule alpha (+ (alphanumericp character))
@@ -142,8 +136,9 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 ;;; defines rules to parse the .text segment
 
-(esrap:defrule instr-clean (and (esrap:? space) instr nl-inc)
-  (:function cadr))
+(esrap:defrule instr-clean (and (esrap:? space) instr nl)
+  (:function cadr)
+  (:lambda (i) (incf line-number) i))
 
 (esrap:defrule label-clean (and label-decl nl)
   (:function car))
