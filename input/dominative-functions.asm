@@ -14,6 +14,7 @@ MAIN:
 
 	push $6
 	;; jal SUB23
+	pop $6
 	store $6 answer($0)
 SUB23:
 	push $5		; push old frame pointer
@@ -34,7 +35,7 @@ SUB23:
 
 	addi $2 $5 0x0	; restore stack pointer
 	pop $5		; restore frame pointer
-	;; ret
+	ret
 ADD76:
 	push $5
 	addi $5 $2 0x0
@@ -51,4 +52,4 @@ ADD76:
 
 	addi $2 $5 0x0
 	pop $5
-	;; ret
+	ret

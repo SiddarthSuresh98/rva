@@ -84,11 +84,12 @@
 (generate-mnemonic 'i-type-2-m '("STOREV" "STORE"))
 (generate-mnemonic 'j-type-1-m '("JMP" "JAL"))
 (generate-mnemonic 'j-type-2-m '("PUSH" "POP"))
+(generate-mnemonic 'j-type-3-m '("RET" "NOP"))
 
 ;; we need to reverse to ensure rules like "ADDV" are matched before "ADD"
 (generate-mnemonic 'r-type-3-m (reverse util:r-type))
 (generate-mnemonic 'i-type-3-m (reverse util:i-type))
-(generate-mnemonic 'j-type-3-m (reverse util:j-type))
+(generate-mnemonic 'j-type-4-m (reverse util:j-type))
 
 ;; TODO this is pretty gross
 (defmacro defrule-instr (name type-id order &rest destructure-pattern)
@@ -110,7 +111,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
 (defrule-instr r-type-3 'emit::r (1 2 0) register register register)
 (defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
-(defrule-instr j-type-3 'emit::j (1 0) label)
+(defrule-instr j-type-4 'emit::j (1 0) label)
 
 (esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
   (:destructure (m w1 s w2 di)
@@ -132,8 +133,12 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
     (declare (ignore w))
     `(emit::j ,m ,r 0)))
 
+(esrap:defrule j-type-3 j-type-3-m
+  (:lambda (m)
+    `(emit::j ,m (emit::rr 0) 0)))
+
 (esrap:defrule instr (or r-type-1 r-type-2 r-type-3 i-type-1 i-type-2
-                         i-type-3 j-type-1 j-type-2 j-type-3))
+                         i-type-3 j-type-1 j-type-2 j-type-3 j-type-4))
 
 ;;; defines rules to parse the .text segment
 

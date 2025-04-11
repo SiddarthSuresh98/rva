@@ -45,9 +45,10 @@
              (emit::x
               (emit::j "JMP" (emit::rr 3) 3)
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 8))
+	      (emit::j "RET" (emit::rr 0) 0)
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tJMP 3($3)
-~tJRL FOO~%~tPUSH $5~%")))))
+~tJRL FOO~%~tRET~%~tPUSH $5~%")))))
 
 (test esrap-instr-type-i-negative
       (is (equal
@@ -73,7 +74,7 @@
 	     (emit::d)
              (emit::x
               (emit::j "JMP" (emit::rr 3) 3)
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 14))
+              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 15))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP 3($3)~t
 JRL FOO~t~%PUSH $5~%")))))
@@ -84,7 +85,7 @@ JRL FOO~t~%PUSH $5~%")))))
 	     (emit::d)
              (emit::x
               (emit::j "JMP" (emit::rr 3) 3)
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 17))
+              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT;; dot dot dot
 ~tJMP 3($3) ;; this does things
@@ -143,11 +144,11 @@ H 3 5~%.TEXT~%")))))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 5) (emit::var "S"))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 10) (emit::var "ARR"))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 6) (emit::var "I"))
-              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 23))
+              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 24))
               (emit::r "ADD" (emit::rr 10) (emit::rr 6) (emit::rr 9))
               (emit::i "ADDI" (emit::rr 6) (emit::rr 6) 1)
               (emit::r "CMP" (emit::rr 6) (emit::rr 5) (emit::rr 0))
-              (emit::j "BGT" (emit::rr 0) (emit::l "L" 27))))
+              (emit::j "BGT" (emit::rr 0) (emit::l "L" 28))))
            (esrap:parse 'parse:str->ast (format nil "
 .DATA
         ARR 1 2 3 4

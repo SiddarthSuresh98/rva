@@ -76,5 +76,5 @@ of the elements from both lists. Returns nil if the lists are not equal size."
   "I-type instructions.")
 
 (defvar j-type
-  '("JMP" "JRL" "JAL" "BEQ" "BGT" "BUF" "BOF" "PUSH" "POP")
+  '("JMP" "JRL" "JAL" "BEQ" "BGT" "BUF" "BOF" "PUSH" "POP" "RET" "NOP")
   "J-type instructions.")
