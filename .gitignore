@@ -4,3 +4,4 @@ manifest.scm
 
 # generated
 bin/
+output/

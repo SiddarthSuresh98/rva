@@ -1,3 +1,10 @@
+;;;;;;;;
+;;; adds adjacent elements of a 4-element vector together,
+;;; storing the result in place.
+;;; Does not make use of variables.
+
+.data
+	;; empty
 .text
         addi $2 $0 0x200
         addi $5 $0 0x1

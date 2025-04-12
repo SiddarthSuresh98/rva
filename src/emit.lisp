@@ -2,7 +2,7 @@
 
 (defun fits-in-X-bits (n)
   "Returns the number of bits required to represent N"
-  (ceiling (/ (log (ceiling n (log 2))) (log 2))))
+  (ceiling (/ (log n) (log 2))))
 
 (defmacro generate-type-map (ops)
   "Generates an alist where the key corresponds to an element in
@@ -11,8 +11,7 @@ number of bits required to represent all
 concatenated with TYPE."
   `(let ((i 0)
          (opsize (fits-in-X-bits (length ,ops))))
-     (mapcar (lambda (x)
-               (incf i)
+     (mapcar (lambda (x) (incf i)
                (cons x (util:format-as-binary i opsize)))
              ,ops)))
 
@@ -32,7 +31,9 @@ concatenated with TYPE."
   (mapcar (lambda (x) (util:format-as-binary x 32)) lst))
 
 (defun x (&rest lst)
-  lst)
+  (append lst
+	  ;; add a halt to the end of the instructions list
+	  (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
 
 (defun r (mnemonic s1 s2 d)
   (concatenate
@@ -51,16 +52,16 @@ concatenated with TYPE."
       (util:format-as-binary val 5)
       (error (format nil "~a is not a valid register id!~%" val))))
 
-(defun imm (val) val)
-
 (defun l (l s)
   (let ((d (util:get-label l)))
     (- d s)))
 
 (defun var (s)
   (let ((pos (util:get-variable s)))
-    (+ pos parse:line-number)))
+    (+ pos parse:line-number 1)))
 
 (defun emit (p)
-  (format t "~a~%" p)
   (eval p))
+
+(defun ast->str (p)
+  (format nil "~a" p))
