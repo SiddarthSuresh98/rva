@@ -4,8 +4,17 @@
   :description "Test functions exported from the parser."
   :in all-tests)
 
+(defmacro expect-parse-error (body)
+  `(handler-case
+       (progn ,body
+              (fail))
+     (esrap::parse-error ())))
+
 ;;; these tests are not exhaustive, and are meant to test basic functionality
 ;;; under correct circumstances.
+;;; TODO add negative test cases
+;;; TODO undesirably, these tests are setup in a way where the previous tests
+;;; affect the succeeding ones (line labels)
 
 (in-suite parse-tests)
 
@@ -43,7 +52,7 @@
            '(emit::p
 	     (emit::d)
              (emit::x
-	      (emit::j "JMP" (emit::l "FOO" 7) (emit::rr 0))
+	      (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
 	      (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 8))
 	      (emit::j "RET" (emit::rr 0) 0)
               (emit::j "PUSH" (emit::rr 5) 0)))
@@ -73,7 +82,7 @@
            '(emit::p
 	     (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::l "FOO" 14) (emit::rr 0))
+              (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 15))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP FOO~t
@@ -84,12 +93,15 @@ JRL FOO~t~%PUSH $5~%")))))
            '(emit::p
 	     (emit::d)
              (emit::x
-	      (emit::j "JMP" (emit::l "FOO" 17) (emit::rr 0))
+	      (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
 	      (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT;; dot dot dot
 ~tJMP FOO ;; this does things
 ~tJRL FOO~%~tPUSH $5~%")))))
+
+(test esrap-instr-bad-not
+      (expect-parse-error (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tNOT $5 $5 $5~%"))))
 
 (test esrap-data-singleton
       (is (equal

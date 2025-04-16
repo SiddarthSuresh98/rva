@@ -78,6 +78,9 @@
 ;;; defines rules to parse labels
 
 (esrap:defrule label alphanumeric
+  (:lambda (e) (list 'emit::l e)))
+
+(esrap:defrule label+pos alphanumeric
   (:lambda (e) (list 'emit::l e line-number)))
 
 (esrap:defrule label-declaration (and alphanumeric #\:)
@@ -93,21 +96,35 @@
     (esrap:add-rule
      name (make-instance 'esrap:rule :expression expr))))
 
-;; define special cases first
-(generate-mnemonic 'r-type-1-m '("NOT"))
-(generate-mnemonic 'r-type-2-m '("CMP" "CEV"))
-(generate-mnemonic 'i-type-1-m '("LOADV" "LOAD"))
-(generate-mnemonic 'i-type-2-m '("STOREV" "STORE"))
-(generate-mnemonic 'j-type-1-m '("JMP" "JAL"))
-(generate-mnemonic 'j-type-2-m '("PUSH" "POP"))
-(generate-mnemonic 'j-type-3-m '("RET" "NOP"))
-
 ;; we need to reverse to ensure rules like "ADDV" are matched before "ADD"
-(generate-mnemonic 'r-type-3-m (reverse util:r-type))
-(generate-mnemonic 'i-type-3-m (reverse util:i-type))
-(generate-mnemonic 'j-type-4-m (reverse util:j-type))
+(let* ((lst (reverse util:r-type))
+       (type-1 '("NOT"))
+       (type-2 '("CMP" "CEV"))
+       (type-3 (remove-if (lambda (x) (member x (append type-1 type-2))) lst)))
+  (generate-mnemonic 'r-type-1-m type-1)
+  (generate-mnemonic 'r-type-2-m type-2)
+  (generate-mnemonic 'r-type-3-m type-3))
+
+(let* ((lst (reverse util:i-type))
+       (type-1 '("LOADV" "LOAD"))
+       (type-2 '("STOREV" "STORE"))
+       (type-3 (remove-if (lambda (x) (member x (append type-1 type-2))) lst)))
+  (generate-mnemonic 'i-type-1-m type-1)
+  (generate-mnemonic 'i-type-2-m type-2)
+  (generate-mnemonic 'i-type-3-m type-3))
+
+(let* ((lst (reverse util:j-type))
+       (type-1 '("JMP" "JAL"))
+       (type-2 '("PUSH" "POP"))
+       (type-3 '("RET" "NOP"))
+       (type-4 (remove-if (lambda (x) (member x (append type-1 type-2 type-3))) lst)))
+  (generate-mnemonic 'j-type-1-m type-1)
+  (generate-mnemonic 'j-type-2-m type-2)
+  (generate-mnemonic 'j-type-3-m type-3)
+  (generate-mnemonic 'j-type-4-m type-4))
 
 ;; TODO this is pretty gross
+;; while I'm at it, make a macro for the above too
 (defmacro defrule-instr (name type-id order &rest destructure-pattern)
   "Defines the boilerplate for a common esrap instruction rule.
 NAME is the name of the non-terminal symbol.
@@ -120,15 +137,15 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
     `(esrap:defrule ,name
          (and ,(read-from-string (format nil "~A-m" name)) ,@(util:riffle (make-list pattern-size :initial-element 'space) destructure-pattern))
        (:destructure (m ,@(util:riffle spaces vars))
-         (declare (ignore ,@spaces))
-         (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(emit::rr 0))) order))))))
+		     (declare (ignore ,@spaces))
+		     (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(emit::rr 0))) order))))))
 
 (defrule-instr r-type-1 'emit::r (1 2 0) register register)
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
 (defrule-instr r-type-3 'emit::r (1 2 0) register register register)
 (defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
-(defrule-instr j-type-1 'emit::j (0 1) label)
-(defrule-instr j-type-4 'emit::j (1 0) label)
+(defrule-instr j-type-1 'emit::j (1 0) label)
+(defrule-instr j-type-4 'emit::j (1 0) label+pos)
 
 (esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
   (:destructure (m w1 s w2 di)

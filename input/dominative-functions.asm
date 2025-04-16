@@ -13,7 +13,7 @@ MAIN:
 	addi $6 $0 -11
 
 	push $6
-	;; jal SUB23
+	jal SUB23
 	pop $6
 	store $6 answer($0)
 SUB23:
@@ -29,7 +29,7 @@ SUB23:
 
 	add  $6 $6 $7
 	push $6
-	;; jal ADD76
+	jal ADD76
 	pop $6		; retrieve and pass along
 	store $6 +4($5)
 
