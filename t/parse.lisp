@@ -4,14 +4,23 @@
   :description "Test functions exported from the parser."
   :in all-tests)
 
+(defmacro expect-parse-error (body)
+  `(handler-case
+       (progn ,body
+              (fail))
+     (esrap::parse-error ())))
+
 ;;; these tests are not exhaustive, and are meant to test basic functionality
 ;;; under correct circumstances.
+;;; TODO add negative test cases
+;;; TODO undesirably, these tests are setup in a way where the previous tests
+;;; affect the succeeding ones (line labels)
 
 (in-suite parse-tests)
 
 (test esrap-register-bases
       (is (equal '(emit::p
-		   (emit::d)
+                   (emit::d)
                    (emit::x
                     (emit::r "ADD" (emit::rr 10) (emit::rr 10) (emit::rr 10))))
                  (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tADD $0O012 $0B1010 $0XA~%")))))
@@ -19,7 +28,7 @@
 (test esrap-instr-all-type-r
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
               (emit::r "ADDV" (emit::rr 1) (emit::rr 2) (emit::rr 3))
               (emit::r "NOT" (emit::rr 4) (emit::rr 0) (emit::rr 5))
@@ -30,7 +39,7 @@
 (test esrap-instr-all-type-i
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
               (emit::i "LOADV" (emit::rr 8) (emit::rr 9) 1)
               (emit::i "STORE" (emit::rr 3) (emit::rr 5) 3)
@@ -41,19 +50,19 @@
 (test esrap-instr-type-all-type-j
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
+              (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 8))
-	      (emit::j "RET" (emit::rr 0) 0)
+              (emit::j "RET" (emit::rr 0) 0)
               (emit::j "PUSH" (emit::rr 5) 0)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tJMP 3($3)
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tJMP FOO
 ~tJRL FOO~%~tRET~%~tPUSH $5~%")))))
 
 (test esrap-instr-type-i-negative
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
               (emit::i "LOADV" (emit::rr 8) (emit::rr 3) -3)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 -3($3)~%")))))
@@ -61,7 +70,7 @@
 (test esrap-instr-type-i-vars
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
               (emit::i "LOADV" (emit::rr 8) (emit::rr 4) 2)
               (emit::i "STORE" (emit::rr 1) (emit::rr 5) 2)))
@@ -71,32 +80,35 @@
 (test esrap-instr-type-all-lazy-spaces
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
+              (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 15))
               (emit::j "PUSH" (emit::rr 5) 0)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP 3($3)~t
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP FOO~t
 JRL FOO~t~%PUSH $5~%")))))
 
 (test esrap-instr-type-comments
       (is (equal
            '(emit::p
-	     (emit::d)
+             (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
+              (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT;; dot dot dot
-~tJMP 3($3) ;; this does things
+~tJMP FOO ;; this does things
 ~tJRL FOO~%~tPUSH $5~%")))))
+
+(test esrap-instr-bad-not
+      (expect-parse-error (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tNOT $5 $5 $5~%"))))
 
 (test esrap-data-singleton
       (is (equal
            '(emit::p
              (emit::d
               1)
-	     (emit::x))
+             (emit::x))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~tA 1~%.TEXT~%")))))
 
 (test esrap-data-loaded
@@ -104,7 +116,7 @@ JRL FOO~t~%PUSH $5~%")))))
            '(emit::p
              (emit::d
               1 2 3 4 5 6 7 8)
-	     (emit::x))
+             (emit::x))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~tB 1 2 3 4 5 6 7 8
 .TEXT~%")))))
 
@@ -113,7 +125,7 @@ JRL FOO~t~%PUSH $5~%")))))
            '(emit::p
              (emit::d
               5 6 7 8 4 3 5)
-	     (emit::x))
+             (emit::x))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~tC 5 6 7 8~%~tD 4
 ~tE 3 5~%.TEXT~%")))))
 
@@ -122,18 +134,18 @@ JRL FOO~t~%PUSH $5~%")))))
            '(emit::p
              (emit::d
               5 6 7 8 4 3 5)
-	     (emit::x))
+             (emit::x))
            (esrap:parse 'parse:str->ast (format nil "~%~t.DATA~t~%F 5 6 7 8~t~%G 4
 H 3 5~%.TEXT~%")))))
 
 (test esrap-negative-ints
       (is (equal
-	   '(emit::p
-	     (emit::d
-	      -1)
-	     (emit::x
-	      (emit::i "LOADV" (emit::rr -8) (emit::rr -3) -3)))
-	   (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tLOADV $-8 -3($-3)~%")))))
+           '(emit::p
+             (emit::d
+              -1)
+             (emit::x
+              (emit::i "LOADV" (emit::rr -8) (emit::rr -3) -3)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tLOADV $-8 -3($-3)~%")))))
 
 (test esrap-data-full
       (is (equal

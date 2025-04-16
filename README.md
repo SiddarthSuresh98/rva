@@ -16,6 +16,14 @@ A common-lisp implementation (SBCL) and the following libraries are required to 
 
 Run `make` to produce a binary file in `/bin/`. To run the unit tests, run `make test`. See the make file for further options.
 
+## Todo
+
+- add named register aliases
+- add 'mov'', 'leave' pseudo-instructions
+- allow .text and .data to appear anywhere, any number of times
+- rewrite tests to be independent of each other
+- write negative test cases
+
 # About
 
 Created at the University of Massachusetts, Amherst

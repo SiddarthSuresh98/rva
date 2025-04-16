@@ -48,8 +48,8 @@ concatenated with TYPE."
 
 (defun x (&rest lst)
   (append lst
-	  ;; add a halt to the end of the instructions list
-	  (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
+          ;; add a halt to the end of the instructions list
+          (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
 
 (defun r (mnemonic s1 s2 d)
   (concatenate
@@ -68,9 +68,9 @@ concatenated with TYPE."
       (util:format-as-binary val 5)
       (error (format nil "~a is not a valid register id!~%" val))))
 
-(defun l (l s)
+(defun l (l &optional (pos 0))
   (let ((d (util:get-label l)))
-    (- d s)))
+    (- d pos)))
 
 (defun var (s)
   (let ((pos (util:get-variable s)))
