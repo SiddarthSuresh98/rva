@@ -48,8 +48,8 @@ concatenated with TYPE."
 
 (defun x (&rest lst)
   (append lst
-	  ;; add a halt to the end of the instructions list
-	  (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
+          ;; add a halt to the end of the instructions list
+          (list (r "QUOT" (rr 0) (rr 0) (rr 0)))))
 
 (defun r (mnemonic s1 s2 d)
   (concatenate

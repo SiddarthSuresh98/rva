@@ -54,7 +54,7 @@
   (:lambda (e) (parse-integer (esrap:text (cddr e)) :radix 16)))
 
 (esrap:defrule integer (and (esrap:? sign) (or binary-number octal-number
-					   hexadecimal-number decimal-number))
+                                           hexadecimal-number decimal-number))
   (:destructure (s i)
     (if (and s (string= s "-")) (- i) i)))
 
@@ -137,8 +137,8 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
     `(esrap:defrule ,name
          (and ,(read-from-string (format nil "~A-m" name)) ,@(util:riffle (make-list pattern-size :initial-element 'space) destructure-pattern))
        (:destructure (m ,@(util:riffle spaces vars))
-		     (declare (ignore ,@spaces))
-		     (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(emit::rr 0))) order))))))
+                     (declare (ignore ,@spaces))
+                     (list ,type-id m ,@(mapcar (lambda (x) (or (nth x vars) ''(emit::rr 0))) order))))))
 
 (defrule-instr r-type-1 'emit::r (1 2 0) register register)
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
