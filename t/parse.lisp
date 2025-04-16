@@ -43,11 +43,11 @@
            '(emit::p
 	     (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 8))
+	      (emit::j "JMP" (emit::l "FOO" 7) (emit::rr 0))
+	      (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 8))
 	      (emit::j "RET" (emit::rr 0) 0)
               (emit::j "PUSH" (emit::rr 5) 0)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tJMP 3($3)
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tJMP FOO
 ~tJRL FOO~%~tRET~%~tPUSH $5~%")))))
 
 (test esrap-instr-type-i-negative
@@ -73,10 +73,10 @@
            '(emit::p
 	     (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
+              (emit::j "JMP" (emit::l "FOO" 14) (emit::rr 0))
               (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 15))
               (emit::j "PUSH" (emit::rr 5) 0)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP 3($3)~t
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP FOO~t
 JRL FOO~t~%PUSH $5~%")))))
 
 (test esrap-instr-type-comments
@@ -84,11 +84,11 @@ JRL FOO~t~%PUSH $5~%")))))
            '(emit::p
 	     (emit::d)
              (emit::x
-              (emit::j "JMP" (emit::rr 3) 3)
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
+	      (emit::j "JMP" (emit::l "FOO" 17) (emit::rr 0))
+	      (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT;; dot dot dot
-~tJMP 3($3) ;; this does things
+~tJMP FOO ;; this does things
 ~tJRL FOO~%~tPUSH $5~%")))))
 
 (test esrap-data-singleton
