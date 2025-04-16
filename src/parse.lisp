@@ -1,3 +1,19 @@
+;; Assembler for the RISC-V[ECTOR] mini-ISA.
+;; Copyright (C) 2025
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 (in-package #:parse)
 
 (defparameter line-number 0
@@ -111,6 +127,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
 (defrule-instr r-type-3 'emit::r (1 2 0) register register register)
 (defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
+(defrule-instr j-type-1 'emit::j (0 1) label)
 (defrule-instr j-type-4 'emit::j (1 0) label)
 
 (esrap:defrule i-type-1 (and i-type-1-m space register space dereference)
@@ -122,11 +139,6 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
   (:destructure (m w1 s w2 di)
     (declare (ignore w1 w2))
     `(emit::i ,m ,@(util:insert-in-middle di s))))
-
-(esrap:defrule j-type-1 (and j-type-1-m space dereference)
-  (:destructure (m w di)
-    (declare (ignore w))
-    `(emit::j ,m ,@di)))
 
 (esrap:defrule j-type-2 (and j-type-2-m space register)
   (:destructure (m w r)
