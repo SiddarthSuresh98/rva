@@ -5,3 +5,4 @@ manifest.scm
 # generated
 bin/
 output/
+input/*.rv

@@ -1,7 +1,6 @@
 ;;;;;;;;
 ;;; makes use of a designated function to add two numbers together
 ;;; uses a stack-based paradigm with a base pointer to manage argument passing
-;;; TODO this file is incomplete due to remaining ISA subroutine design issues
 
 .data
 	answer 0
@@ -19,7 +18,7 @@ MAIN:
 SUB23:
 	push $5		; push old frame pointer
 	addi $5 $2 0x0
-	subi $2 $2 0x4
+	subi $2 $2 0x1
 
 	addi $6 $0 -23
 	store $6 -4($5)
@@ -39,7 +38,7 @@ SUB23:
 ADD76:
 	push $5
 	addi $5 $2 0x0
-	subi $2 $2 0x4
+	subi $2 $2 0x1
 
 	addi $6 $0 +76
 	store $6 -4($5)

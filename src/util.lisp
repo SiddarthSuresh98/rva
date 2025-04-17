@@ -22,7 +22,7 @@
 
 (defun generate-file-name (file)
   "Given a .asm file, generates an identically named .rv file."
-  (subseq file 0 (- (length file) 4)))
+  (concatenate 'string (subseq file 0 (- (length file) 3)) "rv"))
 
 (defun format-as-binary (num len)
   "Formats NUM as a binary number, and pads to LEN with zeros."
