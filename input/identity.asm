@@ -13,10 +13,10 @@
 .text
 	addi $8  $0 0x4	; dimensions
 	addi $9  $0 0x0	; tracks the rows
-	addi $10 $0 0x0	; tracks the columns
 	jrl  ROWCOND
 
 ROW:
+	addi $10 $0 0x0	; tracks the columns
 	jrl  COLCOND
 COL:
 	addi $11 $0 0x0	; tracks the element being added
@@ -28,32 +28,43 @@ COL:
 	addi $6 $0 m2	; setup the index into m2
 	add  $6 $6 $10
 
+	addi $15 $5 0  	; setup a base address into both
+	addi $7 $6 0
+
 	jrl  ELECOND
 ELE:
-	add  $5 $5 $11	; increment m1
+	add  $5 $15 $11	; increment m1
 
 	mul  $13 $11 $8 ; increment m2
-	add  $6 $6 $13
+	add  $6 $7 $13
 
 	load $13 0($5)	; retrieve and accumulate
 	load $14 0($6)
-	add  $12 $14 $13
+	mul  $13 $14 $13
+	add  $12 $12 $13
 
 	addi $11 $11 0x1
 ELECOND:
 	cmp  $8 $11
 	bgt  ELE
+
+	mul  $7 $9 $8
+	add  $7 $7 $10
+	addi $7 $7 r
+
+	store $12 0($7)
+
 	addi $10 $10 0x1
 COLCOND:
 	cmp  $8 $10
 	bgt  COL
 
-	add  $7 $7 $10	; setup the index into r
-	addi $7 $7 r
-
-	store $12 0($7)
-
 	addi $9 $9 0x1
 ROWCOND:
 	cmp  $8 $9
 	bgt  ROW
+	nop
+	nop
+	nop
+	nop
+	nop
