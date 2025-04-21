@@ -1,5 +1,5 @@
 ;; Assembler for the RISC-V[ECTOR] mini-ISA.
-;; Copyright (C) 2025
+;; Copyright (C) 2025 bdunahu
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
