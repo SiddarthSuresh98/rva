@@ -8,9 +8,9 @@
 	i   0
 
 .text
-	addi $5 $5 s
-	addi $10 $10 arr
-	addi $6 $6 i
+	load $5 s($0)
+	addi $10 $0 arr
+	load $6 i($0)
         jrl CMP
 L:
 	add $9 $10 $6
