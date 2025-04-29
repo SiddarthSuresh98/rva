@@ -3,7 +3,7 @@
 
 .data
 	rabbits 2
-	rate 300
+	rate 2
 
 .text
 	load $5 rabbits($0)
