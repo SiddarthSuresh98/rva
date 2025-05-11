@@ -88,7 +88,7 @@ of the elements from both lists. Returns nil if the lists are not equal size."
   "R-type instructions.")
 
 (defvar i-type
-  '("LOAD" "LOADV" "ADDI" "SUBI" "SFTRI" "SFTLI" "ANDI" "ORI" "XORI" "STORE" "STOREV")
+  '("LOAD" "SRDL" "ADDI" "SUBI" "SFTRI" "SFTLI" "ANDI" "ORI" "XORI" "STORE" "SRDS")
   "I-type instructions.")
 
 (defvar j-type

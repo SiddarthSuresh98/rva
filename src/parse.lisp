@@ -106,8 +106,8 @@
   (generate-mnemonic 'r-type-3-m type-3))
 
 (let* ((lst (reverse util:i-type))
-       (type-1 '("LOADV" "LOAD"))
-       (type-2 '("STOREV" "STORE"))
+       (type-1 '("SRDL" "LOAD"))
+       (type-2 '("SRDS" "STORE"))
        (type-3 (remove-if (lambda (x) (member x (append type-1 type-2))) lst)))
   (generate-mnemonic 'i-type-1-m type-1)
   (generate-mnemonic 'i-type-2-m type-2)

@@ -41,10 +41,10 @@
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "LOADV" (emit::rr 8) (emit::rr 9) 1)
+              (emit::i "SRDL" (emit::rr 8) (emit::rr 9) 1)
               (emit::i "STORE" (emit::rr 3) (emit::rr 5) 3)
               (emit::i "ADDI" (emit::rr 4) (emit::rr 5) 2)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 1($9)
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 1($9)
 ~tSTORE $5 3($3)~%~tADDI $5 $4 2~%")))))
 
 (test esrap-instr-type-all-type-j
@@ -64,17 +64,17 @@
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "LOADV" (emit::rr 8) (emit::rr 3) -3)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 -3($3)~%")))))
+              (emit::i "SRDL" (emit::rr 8) (emit::rr 3) -3)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 -3($3)~%")))))
 
 (test esrap-instr-type-i-vars
       (is (equal
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "LOADV" (emit::rr 8) (emit::rr 4) 2)
+              (emit::i "SRDL" (emit::rr 8) (emit::rr 4) 2)
               (emit::i "STORE" (emit::rr 1) (emit::rr 5) 2)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOADV $8 2($4)
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 2($4)
 ~tSTORE $5 2($1)~%")))))
 
 (test esrap-instr-type-all-lazy-spaces
@@ -144,8 +144,8 @@ H 3 5~%.TEXT~%")))))
              (emit::d
               -1)
              (emit::x
-              (emit::i "LOADV" (emit::rr -8) (emit::rr -3) -3)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tLOADV $-8 -3($-3)~%")))))
+              (emit::i "SRDL" (emit::rr -8) (emit::rr -3) -3)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tSRDL $-8 -3($-3)~%")))))
 
 (test esrap-data-full
       (is (equal

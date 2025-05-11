@@ -13,9 +13,9 @@
 	load $4 vSiz($0)
 	load $5 max($0)
 	load $6 min($0)
-	loadv $17 max($0)
-	loadv $18 min($0)
-	loadv $19 n1($0)
+	srdl $17 max($0)
+	srdl $18 min($0)
+	srdl $19 n1($0)
 	addi $7 $0 1
 	addi $8 $0 -1
 	jrl ADDROVER

@@ -5,7 +5,6 @@
 	s 4
 .text
 	load $4 s($0) 		; set the vector length register
-
 LOOP:
 	cev $17 $16
 	beq END
