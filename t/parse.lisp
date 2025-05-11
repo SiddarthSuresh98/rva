@@ -31,21 +31,20 @@
              (emit::d)
              (emit::x
               (emit::r "ADDV" (emit::rr 1) (emit::rr 2) (emit::rr 3))
+              (emit::r "SRDL" (emit::rr 11) (emit::rr 16) (emit::rr 17))
               (emit::r "NOT" (emit::rr 4) (emit::rr 0) (emit::rr 5))
               (emit::r "CMP" (emit::rr 6) (emit::rr 7) (emit::rr 0))))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tADDV $3 $1 $2
-~tNOT $5 $4~%~tCMP $6 $7~%")))))
+~tSRDL $17 $11 $16~%~tNOT $5 $4~%~tCMP $6 $7~%")))))
 
 (test esrap-instr-all-type-i
       (is (equal
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "SRDL" (emit::rr 8) (emit::rr 9) 1)
               (emit::i "STORE" (emit::rr 3) (emit::rr 5) 3)
               (emit::i "ADDI" (emit::rr 4) (emit::rr 5) 2)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 1($9)
-~tSTORE $5 3($3)~%~tADDI $5 $4 2~%")))))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSTORE $5 3($3)~%~tADDI $5 $4 2~%")))))
 
 (test esrap-instr-type-all-type-j
       (is (equal
@@ -64,18 +63,16 @@
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "SRDL" (emit::rr 8) (emit::rr 3) -3)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 -3($3)~%")))))
+              (emit::i "LOAD" (emit::rr 8) (emit::rr 3) -3)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tLOAD $8 -3($3)~%")))))
 
 (test esrap-instr-type-i-vars
       (is (equal
            '(emit::p
              (emit::d)
              (emit::x
-              (emit::i "SRDL" (emit::rr 8) (emit::rr 4) 2)
-              (emit::i "STORE" (emit::rr 1) (emit::rr 5) 2)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSRDL $8 2($4)
-~tSTORE $5 2($1)~%")))))
+	      (emit::i "STORE" (emit::rr 1) (emit::rr 5) 2)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT~%~tSTORE $5 2($1)~%")))))
 
 (test esrap-instr-type-all-lazy-spaces
       (is (equal
@@ -83,7 +80,7 @@
              (emit::d)
              (emit::x
               (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 15))
+              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 14))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%~%.TEXT~t~%JMP FOO~t
 JRL FOO~t~%PUSH $5~%")))))
@@ -94,7 +91,7 @@ JRL FOO~t~%PUSH $5~%")))))
              (emit::d)
              (emit::x
               (emit::j "JMP" (emit::rr 0) (emit::l "FOO"))
-              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 18))
+              (emit::j "JRL" (emit::rr 0) (emit::l "FOO" 17))
               (emit::j "PUSH" (emit::rr 5) 0)))
            (esrap:parse 'parse:str->ast (format nil ".DATA~%.TEXT;; dot dot dot
 ~tJMP FOO ;; this does things
@@ -144,8 +141,8 @@ H 3 5~%.TEXT~%")))))
              (emit::d
               -1)
              (emit::x
-              (emit::i "SRDL" (emit::rr -8) (emit::rr -3) -3)))
-           (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tSRDL $-8 -3($-3)~%")))))
+              (emit::i "LOAD" (emit::rr -8) (emit::rr -3) -3)))
+           (esrap:parse 'parse:str->ast (format nil ".DATA~%~tm -1~%.TEXT~%~tLOAD $-8 -3($-3)~%")))))
 
 (test esrap-data-full
       (is (equal
@@ -156,11 +153,11 @@ H 3 5~%.TEXT~%")))))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 5) (emit::var "S"))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 10) (emit::var "ARR"))
               (emit::i "ADDI" (emit::rr 0) (emit::rr 6) (emit::var "I"))
-              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 24))
+              (emit::j "JRL" (emit::rr 0) (emit::l "CMP" 23))
               (emit::r "ADD" (emit::rr 10) (emit::rr 6) (emit::rr 9))
               (emit::i "ADDI" (emit::rr 6) (emit::rr 6) 1)
               (emit::r "CMP" (emit::rr 6) (emit::rr 5) (emit::rr 0))
-              (emit::j "BGT" (emit::rr 0) (emit::l "L" 28))))
+              (emit::j "BGT" (emit::rr 0) (emit::l "L" 27))))
            (esrap:parse 'parse:str->ast (format nil "
 .DATA
         ARR 1 2 3 4
