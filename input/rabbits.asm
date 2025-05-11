@@ -18,3 +18,4 @@ DONE:
 	nop
 	nop
 	nop
+	div $0 $0 $0

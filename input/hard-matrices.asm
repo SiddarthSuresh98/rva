@@ -1,5 +1,5 @@
 ;;;;;;;;
-;;; performs a matrix multiply the matrices m1 and m2: 36 * 18, 18 * 100
+;;; performs a matrix multiply the matrices m1 and m2: 100 * 18, 18 * 36
 ;;;
 ;;; YES I VERIFIED THIS IS CORRECT
 ;;;

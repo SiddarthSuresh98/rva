@@ -32,13 +32,13 @@ SWAPPER:
 	store $8 arr($6)
 
 EXIT:
-	addi $2 $5 0x0		;function postamble
+	addi $2 $5 0x0		; function postamble
 	pop $5
 	ret
 
 
 MAIN:
-	push $5			;function preamble
+	push $5			; function preamble
 	addi $5 $2 0x0
 	subi $2 $2 0x4
 
