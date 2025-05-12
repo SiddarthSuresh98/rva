@@ -3,17 +3,17 @@
 ;;; storing the result in place.
 
 .data
-	arr 1 2 3 4
-	s   3
-	i   0
+        arr 1 2 3 4
+        s   3
+        i   0
 
 .text
-	load $5 s($0)
-	addi $10 $0 arr
-	load $6 i($0)
+        load $5 s($0)
+        addi $10 $0 arr
+        load $6 i($0)
         jrl CMP
 L:
-	add $9 $10 $6
+        add $9 $10 $6
         load $7 0($9)
         load $8 1($9)
         add $7 $7 $8
