@@ -84,7 +84,7 @@ of the elements from both lists. Returns nil if the lists are not equal size."
 
 (defvar r-type
   '("ADD" "SUB" "MUL" "QUOT" "REM" "SFTR" "SFTL" "AND" "OR"
-    "NOT" "XOR" "ADDV" "SUBV" "MULV" "DIVV" "CMP" "CEV" "SRDL" "SRDS")
+    "NOT" "XOR" "ADDV" "SUBV" "MULV" "DIVV" "CMP" "CEV" "SRDL" "SRDS" "ROTV")
   "R-type instructions.")
 
 (defvar i-type
