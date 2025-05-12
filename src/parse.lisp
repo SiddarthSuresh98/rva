@@ -100,10 +100,12 @@
 (let* ((lst (reverse util:r-type))
        (type-1 '("NOT"))
        (type-2 '("CMP" "CEV"))
-       (type-3 (remove-if (lambda (x) (member x (append type-1 type-2))) lst)))
+       (type-3 '("ROTV"))
+       (type-4 (remove-if (lambda (x) (member x (append type-1 type-2))) lst)))
   (generate-mnemonic 'r-type-1-m type-1)
   (generate-mnemonic 'r-type-2-m type-2)
-  (generate-mnemonic 'r-type-3-m type-3))
+  (generate-mnemonic 'r-type-3-m type-3)
+  (generate-mnemonic 'r-type-4-m type-4))
 
 (let* ((lst (reverse util:i-type))
        (type-1 '("LOAD"))
@@ -142,7 +144,8 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
 
 (defrule-instr r-type-1 'emit::r (1 2 0) register register)
 (defrule-instr r-type-2 'emit::r (0 1 2) register register)
-(defrule-instr r-type-3 'emit::r (1 2 0) register register register)
+(defrule-instr r-type-3 'emit::r (2 1 0) register register register)
+(defrule-instr r-type-4 'emit::r (1 2 0) register register register)
 (defrule-instr i-type-3 'emit::i (1 0 2) register register immediate)
 (defrule-instr j-type-1 'emit::j (1 0) label)
 (defrule-instr j-type-4 'emit::j (1 0) label+pos)
@@ -166,7 +169,7 @@ DESTRUCTURE-PATTERN is the list of non-terminals on the right side of the gramma
   (:lambda (m)
     `(emit::j ,m (emit::rr 0) 0)))
 
-(esrap:defrule instr (or r-type-1 r-type-2 r-type-3 i-type-1 i-type-2
+(esrap:defrule instr (or r-type-1 r-type-2 r-type-3 r-type-4 i-type-1 i-type-2
                          i-type-3 j-type-1 j-type-2 j-type-3 j-type-4))
 
 ;;; defines rules to parse the .text segment
